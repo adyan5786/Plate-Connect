@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Profile</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .profile-icon {
+            position: absolute;
+            top: 20px;
+            right: 40px;
+            width: 40px;
+            height: 40px;
+            background: #eee;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .dashboard-header {
+            position: relative;
+        }
+        .info-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="dashboard-header">
+        <h2>Your Profile</h2>
+        <a href="{{ url_for('donor_dashboard') if user.user_type == 'donor' else url_for('ngo_dashboard') }}" class="profile-icon">&#8592;</a>
+    </div>
+    <form method="POST" action="{{ url_for('profile') }}">
+        <div class="info-label">Name</div>
+        <input type="text" name="name" value="{{ user.name }}" required>
+        
+        <div class="info-label">Email</div>
+        <input type="email" name="email" value="{{ user.email }}" required readonly>
+        
+        <div class="info-label">Address</div>
+        <input type="text" name="address" value="{{ user.address }}" required>
+        
+        {% if user.user_type == 'ngo' %}
+        <div class="info-label">Purpose</div>
+        <input type="text" name="purpose" value="{{ user.purpose }}">
+        {% endif %}
+        
+        <hr>
+        <div class="info-label">Change Password</div>
+        <input type="password" name="new_password" placeholder="New Password">
+        <input type="password" name="confirm_password" placeholder="Confirm New Password">
+        
+        <button type="submit">Save Changes</button>
+    </form>
+</div>
+</body>
+</html>

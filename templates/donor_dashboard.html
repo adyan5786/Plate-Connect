@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Donor Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .profile-icon {
+            position: absolute;
+            top: 20px;
+            right: 40px;
+            width: 40px;
+            height: 40px;
+            background: #eee;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .dashboard-header {
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="dashboard-header">
+        <h2>Food Donor Dashboard</h2>
+        <a href="{{ url_for('profile') }}" class="profile-icon">&#128100;</a>
+    </div>
+    <h3>Your Listings</h3>
+    {% if listings %}
+        <ul>
+        {% for listing in listings %}
+            <li>
+                <strong>{{ listing.food_type }}</strong> ({{ listing.quantity }})<br>
+                {{ listing.description }}<br>
+                Best before: {{ listing.best_before }}<br>
+                <em>Address: {{ listing.address }}</em>
+                <br>
+                <strong>Requests:</strong>
+                <ul>
+                {% for req in listing.requests %}
+                    <li>
+                        {{ req.ngo_name }} ({{ req.status }})
+                    </li>
+                {% endfor %}
+                </ul>
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No listings yet.</p>
+    {% endif %}
+    <hr>
+    <h3>Add New Listing</h3>
+    <form method="POST" action="{{ url_for('add_listing') }}">
+        <input type="text" name="food_type" placeholder="Food Type" required>
+        <input type="text" name="quantity" placeholder="Quantity" required>
+        <input type="text" name="description" placeholder="Description">
+        <input type="date" name="best_before" placeholder="Best Before" required>
+        <button type="submit">Add Listing</button>
+    </form>
+</div>
+</body>
+</html>
