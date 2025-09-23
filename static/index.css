@@ -3,7 +3,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 50px;
+    padding: 30px 300px;
     background: #fafcfb;
     gap: 40px;
     flex-wrap: wrap;
@@ -63,7 +63,7 @@
 .hero-image {
     flex: 1 1 320px;
     display: flex;
-    justify-content: center;
+    justify-content: flex-end;
     align-items: center;
 }
 
@@ -79,7 +79,7 @@
 /* How It Works Section */
 .how-it-works {
     background: #f6f8f7;
-    padding: 54px 0 64px 0;
+    padding: 40px 0 40px 0;
     text-align: center;
 }
 

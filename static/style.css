@@ -51,6 +51,17 @@ body {
     align-self: center;
     font-size: 1.25rem;
     font-weight: bold;
+    text-decoration: none; /* Prevent underline */
+    cursor: pointer;
+    transition: color 0.18s;
+}
+
+.logo-text.green-font:hover {
+    color: var(--dark-blue);
+}
+
+.logo-text.dark-blue-font:hover {
+    color: var(--green);
 }
 
 .nav {
