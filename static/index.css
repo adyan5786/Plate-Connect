@@ -1,0 +1,196 @@
+/* Hero Section */
+.hero {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 50px;
+    background: #fafcfb;
+    gap: 40px;
+    flex-wrap: wrap;
+}
+
+.hero-content {
+    flex: 1 1 380px;
+    max-width: 500px;
+}
+
+.hero-content h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+    line-height: 1.12;
+}
+
+.hero-content .accent {
+    color: #388e3c;
+}
+
+.hero-content p {
+    font-size: 1.1rem;
+    color: #555;
+    margin-bottom: 22px;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.hero-stats {
+    display: flex;
+    gap: 40px;
+    margin-top: 22px;
+}
+
+.stat-number {
+    font-size: 1.55rem;
+    font-weight: 700;
+}
+
+.stat-number.orange {
+    color: #f57c00;
+}
+
+.stat-label {
+    display: block;
+    font-size: 0.95rem;
+    color: #6d6d6d;
+    margin-top: 2px;
+}
+
+/* Hero Image */
+.hero-image {
+    flex: 1 1 320px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hero-image img {
+    max-width: 500px;
+    width: 100%;
+    height: auto;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(27,94,32,0.09);
+    background: #e8f5e9;
+}
+
+/* How It Works Section */
+.how-it-works {
+    background: #f6f8f7;
+    padding: 54px 0 64px 0;
+    text-align: center;
+}
+
+.how-it-works h2 {
+    font-size: 2rem;
+    color: #222;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.how-desc {
+    font-size: 1.08rem;
+    color: #555;
+    margin-bottom: 34px;
+}
+
+.how-cards {
+    display: flex;
+    gap: 36px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.how-card {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 2px 16px rgba(27,94,32,0.06);
+    padding: 34px 28px 24px 28px;
+    min-width: 280px;
+    max-width: 350px;
+    flex: 1 1 280px;
+    text-align: left;
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.card-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.7rem;
+    margin-bottom: 16px;
+}
+
+.green-bg {
+    background: #e8f5e9;
+    color: #388e3c;
+}
+
+.orange-bg {
+    background: #fff3e0;
+    color: #f57c00;
+}
+
+.how-card h3 {
+    font-size: 1.18rem;
+    color: #222;
+    margin-bottom: 14px;
+    font-weight: 700;
+}
+
+.how-card ol {
+    padding-left: 18px;
+    color: #3d3d3d;
+    margin-bottom: 18px;
+    font-size: 1.05rem;
+    
+}
+
+.how-card li {
+    margin-bottom: 8px;
+    line-height: 1.6;
+}
+
+.how-card .btn {
+    margin-top: auto;
+    width: 80%;
+    text-align: center;
+}
+
+/* Responsive Design for Hero and How It Works Sections */
+@media (max-width: 900px) {
+    .hero {
+        flex-direction: column;
+        gap: 20px;
+        padding: 32px 0 16px 0;
+    }
+    .hero-image img {
+        max-width: 320px;
+    }
+    .how-cards {
+        flex-direction: column;
+        align-items: center;
+        gap: 22px;
+    }
+}
+@media (max-width: 600px) {
+    .hero-content h1 {
+        font-size: 1.35rem;
+    }
+    .how-it-works h2 {
+        font-size: 1.15rem;
+    }
+    .how-card {
+        padding: 20px 10px 16px 10px;
+        min-width: 180px;
+        max-width: 99vw;
+    }
+}

@@ -1,14 +1,81 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Food Donation Platform</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
 </head>
 <body>
-    <div class="container">
-        <h1>Welcome to Food Donation Platform</h1>
-        <a href="{{ url_for('login') }}">Login</a> 
-        <a href="{{ url_for('signup') }}">Sign Up</a>
-    </div>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <img src="../static/images/logo.png" alt="">
+            <span class="logo-text green-font">Plate</span>
+            <span class="logo-text dark-blue-font">Connect</span>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="dark-blue-font">Connect Hearts Through <span class="green-font">Food</span></h1>
+            <p>
+                Join our platform that connects food donors with those who need it most.<br>
+                Reduce waste, fight hunger, and strengthen communities together.
+            </p>
+            <div class="hero-buttons">
+                <a href="{{ url_for('signup') }}" class="btn btn-green">Get Started</a>
+                <a href="{{ url_for('login') }}" class="btn btn-dark-blue">Sign In</a>
+            </div>
+            <div class="hero-stats">
+                <div>
+                    <span class="stat-number green-font">500+</span>
+                    <span class="stat-label">Meals Donated</span>
+                </div>
+                <div>
+                    <span class="stat-number dark-blue-font">50+</span>
+                    <span class="stat-label">Active Partners</span>
+                </div>
+            </div>
+        </div>
+        <div class="hero-image">
+            <img src="{{ url_for('static', filename='images/hero.png') }}" alt="Food Donation Illustration">
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="how-it-works">
+        <h2>How Plate Connect Works</h2>
+        <p class="how-desc">Simple steps to connect food donors with those who need it most</p>
+        <div class="how-cards">
+            <div class="how-card">
+                <div class="card-icon green-bg">
+                    <span>&#x1F4E6;</span>
+                </div>
+                <h3>For Food Donors</h3>
+                <ol>
+                    <li>Create an account as a food donor</li>
+                    <li>List your available food with details</li>
+                    <li>Receive requests from nearby NGOs</li>
+                    <li>Coordinate pickup and make a difference</li>
+                </ol>
+                <a href="{{ url_for('signup') }}" class="btn btn-green">Start Donating</a>
+            </div>
+            <div class="how-card">
+                <div class="card-icon green-bg">
+                    <span>&#x1F465;</span>
+                </div>
+                <h3>For NGOs & Shelters</h3>
+                <ol>
+                    <li>Register your organization</li>
+                    <li>Browse available food donations</li>
+                    <li>Filter by distance and food type</li>
+                    <li>Request food and arrange pickup</li>
+                </ol>
+                <a href="#" class="btn btn-green">Join as NGO</a>
+            </div>
+        </div>
+    </section>
 </body>
 </html>
