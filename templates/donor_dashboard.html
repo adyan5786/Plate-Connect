@@ -17,6 +17,11 @@
             font-size: 20px;
             cursor: pointer;
         }
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            left: 40px;
+        }
         .dashboard-header {
             position: relative;
         }
@@ -25,6 +30,9 @@
 <body>
 <div class="container">
     <div class="dashboard-header">
+        <form method="POST" action="{{ url_for('logout') }}" class="logout-btn">
+            <button type="submit">Logout</button>
+        </form>
         <h2>Food Donor Dashboard</h2>
         <a href="{{ url_for('profile') }}" class="profile-icon">&#128100;</a>
     </div>

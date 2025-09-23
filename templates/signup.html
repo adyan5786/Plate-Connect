@@ -3,6 +3,21 @@
 <head>
     <title>Sign Up</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script>
+    function togglePurpose() {
+        var userType = document.getElementById('user_type').value;
+        var purposeDiv = document.getElementById('purpose-field');
+        if (userType === 'ngo') {
+            purposeDiv.style.display = 'block';
+        } else {
+            purposeDiv.style.display = 'none';
+        }
+    }
+    window.onload = function() {
+        togglePurpose();
+        document.getElementById('user_type').addEventListener('change', togglePurpose);
+    }
+    </script>
 </head>
 <body>
     <div class="container">
@@ -12,11 +27,13 @@
             <input type="password" name="password" placeholder="Password" required>
             <input type="text" name="name" placeholder="Name" required>
             <input type="text" name="address" placeholder="Address" required>
-            <select name="user_type" required>
+            <select name="user_type" id="user_type" required>
                 <option value="donor">Food Donor</option>
                 <option value="ngo">NGO/Shelter</option>
             </select>
-            <input type="text" name="purpose" placeholder="Purpose (for NGOs/Shelters)">
+            <div id="purpose-field" style="display:none;">
+                <input type="text" name="purpose" placeholder="Purpose (for NGOs/Shelters)">
+            </div>
             <button type="submit">Sign Up</button>
         </form>
         <a href="{{ url_for('login') }}">Already have an account? Login</a>

@@ -96,6 +96,34 @@ def donor_dashboard():
     # Logic to display donor's listings and requests
     return render_template('donor_dashboard.html')
 
+@app.route('/add_listing', methods=['POST'])
+def add_listing():
+    user_id = session.get('user_id')
+    user = User.query.get(user_id)
+    if user is None or user.user_type != 'donor':
+        flash("Unauthorized.")
+        return redirect(url_for('login'))
+    # Get form data
+    food_type = request.form['food_type']
+    quantity = request.form['quantity']
+    description = request.form['description']
+    best_before = request.form['best_before']
+    # Use donor's address from user object
+    address = user.address
+    # Create new listing
+    listing = Listing(
+        donor_id=user.id,
+        food_type=food_type,
+        quantity=quantity,
+        description=description,
+        best_before=best_before,
+        address=address
+    )
+    db.session.add(listing)
+    db.session.commit()
+    flash("Listing added successfully.")
+    return redirect(url_for('donor_dashboard'))
+
 # NGO Dashboard
 @app.route('/ngo_dashboard')
 def ngo_dashboard():
@@ -120,6 +148,11 @@ def profile():
         db.session.commit()
         flash("Profile updated.")
     return render_template('profile.html', user=user)
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
 
 if __name__ == '__main__':
     with app.app_context():
