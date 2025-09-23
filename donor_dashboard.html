@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donor Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="listings">
+        <h1>Food Listings</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Food Type</th>
+                    <th>Quantity</th>
+                    <th>Description</th>
+                    <th>Best Before</th>
+                    <th>Distance</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Example Row -->
+                <tr>
+                    <td>Vegetables</td>
+                    <td>10 kg</td>
+                    <td>Fresh organic vegetables</td>
+                    <td>2023-12-01</td>
+                    <td><!-- Placeholder for distance --></td>
+                </tr>
+                
+                <!-- More rows can be added here -->
+            </tbody>
+        </table>
+    </div>
+    <div class="listing-form">
+        <h2>Add New Listing</h2>
+        <form>
+            <label for="food-type">Food Type:</label>
+            <input type="text" id="food-type" name="food-type" required>
+
+            <label for="quantity">Quantity:</label>
+            <input type="text" id="quantity" name="quantity" required>
+
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" required></textarea>
+
+            <label for="best-before">Best Before:</label>
+            <input type="date" id="best-before" name="best-before" required>
+
+            <button type="submit">Add Listing</button>
+        </form>
+    </div>
+</body>
+</html>
