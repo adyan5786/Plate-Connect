@@ -5,7 +5,6 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='donor_dashboard.css') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- Optionally include FontAwesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
 <body>
@@ -28,7 +27,6 @@
     <!-- Listings Table -->
     <div id="tab-listings" class="listings-table">
         {% if listings %}
-            <!-- Add a sort dropdown for future implementation -->
             <div style="margin-bottom: 8px;">
                 <label for="sort-listings" style="font-weight: 500; color: #5f7c6d;">Sort by:</label>
                 <select id="sort-listings" onchange="sortListings()" style="padding: 6px 12px; border-radius: 6px; border:1px solid #e4e4e1; color:#253b37;">
@@ -42,27 +40,13 @@
                 <div class="listing-details">
                     <div class="listing-title">
                         {{ listing.food_type }}
-                        {% if listing.urgency == 'high' %}
-                            <span class="badge badge-high">high urgency</span>
-                        {% elif listing.urgency == 'medium' %}
-                            <span class="badge badge-medium">medium urgency</span>
-                        {% else %}
-                            <span class="badge badge-low">low urgency</span>
-                        {% endif %}
-                        {% if listing.status == 'available' %}
-                            <span class="badge badge-available">available</span>
-                        {% else %}
-                            <span class="badge badge-claimed">claimed</span>
-                        {% endif %}
                     </div>
                     <div class="listing-meta">
                         <span><i class="fa fa-box icon"></i> {{ listing.quantity }}</span>
-                        <span><i class="fa fa-map-marker-alt icon"></i> {{ listing.address }}</span>
-                        <span><i class="fa fa-clock icon"></i> Expires in {{ listing.expiry_hours }} hours</span>
+                        <span><i class="fa fa-align-left icon"></i> {{ listing.description }}</span>
+                        <span><i class="fa fa-clock icon"></i> Best before: {{ listing.best_before }}</span>
+                        <span><i class="fa fa-location-arrow icon"></i> Distance: {% if listing.distance %}{{ listing.distance }} km{% else %}Coming soon{% endif %}</span>
                     </div>
-                    {% if listing.requests_pending %}
-                        <div class="listing-requests">{{ listing.requests_pending }} pickup request(s) pending</div>
-                    {% endif %}
                 </div>
                 <div class="listing-actions">
                     <form method="GET" action="{{ url_for('edit_listing', listing_id=listing.id) }}">
@@ -84,11 +68,11 @@
         <form class="create-listing-form" method="POST" action="{{ url_for('add_listing') }}">
             <div class="create-listing-title"><i class="fa fa-plus"></i> Create Food Listing</div>
             <div class="create-listing-fields">
-                <div class="form-group">
+                <div class="form-group full-width">
                     <label for="food_type">Food Type</label>
                     <input type="text" id="food_type" name="food_type" placeholder="e.g., Fresh vegetables, Prepared meals" required>
                 </div>
-                <div class="form-group">
+                <div class="form-group full-width">
                     <label for="quantity">Quantity</label>
                     <input type="text" id="quantity" name="quantity" placeholder="e.g., 5kg, 20 portions" required>
                 </div>
@@ -96,26 +80,9 @@
                     <label for="description">Description</label>
                     <textarea id="description" name="description" placeholder="Describe the food items, cooking date, ingredients, etc." rows="2"></textarea>
                 </div>
-                <div class="form-group">
-                    <label for="urgency">Urgency Level</label>
-                    <select id="urgency" name="urgency">
-                        <option value="">Select urgency</option>
-                        <option value="high">High</option>
-                        <option value="medium">Medium</option>
-                        <option value="low">Low</option>
-                    </select>
-                </div>
-                <div class="form-group">
+                <div class="form-group full-width">
                     <label for="best_before">Best Before (Hours from now)</label>
                     <input type="number" id="best_before" name="best_before" placeholder="e.g., 6" min="1" required>
-                </div>
-                <div class="form-group full-width">
-                    <label for="address">Pickup Location</label>
-                    <div class="create-listing-location">
-                        <span class="icon"><i class="fa fa-map-marker-alt"></i></span>
-                        <span>Click to select pickup location<br><span style="font-size:0.92rem; color:#8b5e1a;">(Google Maps integration needed)</span></span>
-                        <input type="text" id="address" name="address" placeholder="Address or location" style="margin-top:10px;">
-                    </div>
                 </div>
             </div>
             <button type="submit" class="create-listing-btn">Create Listing</button>
@@ -140,7 +107,7 @@ function showTab(tab) {
     });
 }
 function sortListings() {
-    // Sorting logic placeholder, implement using AJAX or server-side rendering
+    // Sorting logic placeholder
 }
 </script>
 </body>
