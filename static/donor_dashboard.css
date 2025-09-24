@@ -6,6 +6,16 @@ body {
   padding: 0;
 }
 
+.header .logo {
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.header .logo .logout {
+  margin-left: auto;
+}
+
 .dashboard-container {
   max-width: 1100px;
   margin: 0 auto;
@@ -33,7 +43,8 @@ body {
 }
 
 .back-btn:hover {
-  background: #f6f6f2;
+  background: var(--green);
+  color: white
 }
 
 .dashboard-title {
@@ -84,7 +95,7 @@ body {
   background: #fff;
   border-radius: 13px;
   border: 1px solid #efece6;
-  box-shadow: 0 4px 18px rgba(33,122,83,0.08);
+  box-shadow: 0 4px 18px rgba(33, 122, 83, 0.08);
   padding: 25px 32px;
   display: flex;
   justify-content: space-between;
@@ -93,7 +104,7 @@ body {
 }
 
 .listing-card:hover {
-  box-shadow: 0 8px 24px rgba(33,122,83,0.14);
+  box-shadow: 0 8px 24px rgba(33, 122, 83, 0.14);
 }
 
 .listing-details {
@@ -125,18 +136,22 @@ body {
   background: #f9e2e2;
   color: #c0392b;
 }
+
 .badge-medium {
   background: #fff3d1;
   color: #b87f2a;
 }
+
 .badge-low {
   background: #e6f7e6;
   color: #2b824c;
 }
+
 .badge-available {
   background: #e9cfa8;
   color: #8b5e1a;
 }
+
 .badge-claimed {
   background: #f4f4f4;
   color: #5f7c6d;
@@ -174,7 +189,8 @@ body {
   gap: 11px;
 }
 
-.btn-edit, .btn-remove {
+.btn-edit,
+.btn-remove {
   padding: 8px 19px;
   border-radius: 8px;
   font-size: 1.04rem;
@@ -191,11 +207,13 @@ body {
   background: #e6f7e6;
   color: #2b824c;
 }
+
 .btn-remove {
   color: #c0392b;
   background: #fff;
   border: 1px solid #f9e2e2;
 }
+
 .btn-remove:hover {
   background: #f9e2e2;
 }
@@ -204,7 +222,7 @@ body {
   background: #fff;
   border-radius: 13px;
   border: 1px solid #efece6;
-  box-shadow: 0 4px 18px rgba(33,122,83,0.08);
+  box-shadow: 0 4px 18px rgba(33, 122, 83, 0.08);
   padding: 29px 32px;
   margin-top: 8px;
 }
@@ -235,7 +253,9 @@ body {
   grid-column: span 2;
 }
 
-input, textarea, select {
+input,
+textarea,
+select {
   background: #f6f6f2;
   border: 1px solid #e4e4e1;
   border-radius: 8px;
@@ -247,7 +267,9 @@ input, textarea, select {
   margin-bottom: 2px;
 }
 
-input:focus, textarea:focus, select:focus {
+input:focus,
+textarea:focus,
+select:focus {
   outline: 2px solid #2b824c;
   background: #f2f7f4;
 }
@@ -291,13 +313,23 @@ input:focus, textarea:focus, select:focus {
   .dashboard-container {
     padding: 24px 8px;
   }
-  .listing-card, .create-listing-form {
+
+  .listing-card,
+  .create-listing-form {
     padding: 16px 10px;
   }
+
   .create-listing-fields {
     grid-template-columns: 1fr;
   }
 }
 
-::-webkit-scrollbar { width: 8px; background: #f6f6f2; }
-::-webkit-scrollbar-thumb { background: #ecebe7; border-radius: 4px; }
+::-webkit-scrollbar {
+  width: 8px;
+  background: #f6f6f2;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ecebe7;
+  border-radius: 4px;
+}

@@ -93,8 +93,50 @@ def forgot_password():
 # Donor Dashboard
 @app.route('/donor_dashboard')
 def donor_dashboard():
-    # Logic to display donor's listings and requests
-    return render_template('donor_dashboard.html')
+    donor_id = session.get('user_id')  # assumes user_id is stored in session at login
+    if donor_id is None:
+        return redirect(url_for('login'))  # redirect if user not logged in
+
+    listings = Listing.query.filter_by(donor_id=donor_id).all()
+    return render_template('donor_dashboard.html', listings=listings)
+
+@app.route('/edit_listing/<int:listing_id>', methods=['GET', 'POST'])
+def edit_listing(listing_id):
+    listing = Listing.query.get_or_404(listing_id)
+
+    if request.method == 'POST':
+        # update listing here
+        listing.food_type = request.form['food_type']
+        listing.quantity = request.form['quantity']
+        listing.description = request.form['description']
+        listing.best_before = request.form['best_before']
+        db.session.commit()
+        return redirect(url_for('donor_dashboard'))
+
+    return render_template('edit_listing.html', listing=listing)
+
+@app.route('/remove_listing/<int:listing_id>', methods=['POST'])
+def remove_listing(listing_id):
+    listing = Listing.query.get_or_404(listing_id)
+    db.session.delete(listing)
+    db.session.commit()
+    return redirect(url_for('donor_dashboard'))
+
+@app.route('/update_listing/<int:listing_id>', methods=['POST'])
+def update_listing(listing_id):
+    listing = Listing.query.get_or_404(listing_id)
+
+    # You might want to verify that the logged-in user owns the listing
+    donor_id = session.get('user_id')
+    if listing.donor_id != donor_id:
+        abort(403)  # Forbidden
+
+    listing.food_type = request.form['food_type']
+    listing.quantity = request.form['quantity']
+    listing.description = request.form['description']
+    listing.best_before = request.form['best_before']
+    db.session.commit()
+    return redirect(url_for('donor_dashboard'))
 
 @app.route('/add_listing', methods=['POST'])
 def add_listing():

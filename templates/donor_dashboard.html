@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <title>Donor Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
@@ -7,36 +8,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
-<body>
-<div class="dashboard-container">
-    <div class="dashboard-header">
-        <form method="POST" action="{{ url_for('logout') }}">
-            <button type="submit" class="back-btn"><i class="fa fa-sign-out-alt"></i> Logout</button>
-        </form>
-        <div>
-            <h1 class="dashboard-title">Donor Dashboard</h1>
-            <div class="dashboard-subtitle">Manage your food donations and help reduce waste</div>
-        </div>
-    </div>
-    <div class="dashboard-tabs">
-        <button class="dashboard-tab active" onclick="showTab('listings')">My Listings</button>
-        <button class="dashboard-tab" onclick="showTab('create')">Create Listing</button>
-        <button class="dashboard-tab" onclick="showTab('requests')">Pickup Requests</button>
-    </div>
 
-    <!-- Listings Table -->
-    <div id="tab-listings" class="listings-table">
-        {% if listings %}
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <img src="../static/images/logo.png" alt="">
+            <a href="/" class="logo-text green-font">Plate</a>
+            <a href="/" class="logo-text dark-blue-font">Connect</a>
+            <form class='logout' method="POST" action="{{ url_for('logout') }}">
+                <button type="submit" class="back-btn"><i class="fa fa-sign-out-alt"></i> Logout</button>
+            </form>
+        </div>
+    </header>
+
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <div>
+                <h1 class="dashboard-title">Donor Dashboard</h1>
+                <div class="dashboard-subtitle">Manage your food donations and help reduce waste</div>
+            </div>
+        </div>
+        <div class="dashboard-tabs">
+            <button class="dashboard-tab active" onclick="showTab('listings')">My Listings</button>
+            <button class="dashboard-tab" onclick="showTab('create')">Create Listing</button>
+            <button class="dashboard-tab" onclick="showTab('requests')">Pickup Requests</button>
+        </div>
+
+        <!-- Listings Table -->
+        <div id="tab-listings" class="listings-table">
+            {% if listings %}
             <div style="margin-bottom: 8px;">
                 <label for="sort-listings" style="font-weight: 500; color: #5f7c6d;">Sort by:</label>
-                <select id="sort-listings" onchange="sortListings()" style="padding: 6px 12px; border-radius: 6px; border:1px solid #e4e4e1; color:#253b37;">
-                    <option value="newest">Newest</option>
-                    <option value="oldest">Oldest</option>
-                    <option value="proximity">Proximity</option>
+                <select id="sort-listings" onchange="sortListings()">
+                    <option value="default">Default</option>
+                    <option value="best_before">Best Before</option>
+                    <option value="distance">Distance (Coming Soon)</option>
                 </select>
             </div>
             {% for listing in listings %}
-            <div class="listing-card">
+            <div class="listing-card" data-id="{{ listing.id }}">
                 <div class="listing-details">
                     <div class="listing-title">
                         {{ listing.food_type }}
@@ -45,70 +56,134 @@
                         <span><i class="fa fa-box icon"></i> {{ listing.quantity }}</span>
                         <span><i class="fa fa-align-left icon"></i> {{ listing.description }}</span>
                         <span><i class="fa fa-clock icon"></i> Best before: {{ listing.best_before }}</span>
-                        <span><i class="fa fa-location-arrow icon"></i> Distance: {% if listing.distance %}{{ listing.distance }} km{% else %}Coming soon{% endif %}</span>
+                        <span><i class="fa fa-location-arrow icon"></i> Distance: {% if listing.distance %}{{
+                            listing.distance }} km{% else %}Coming soon{% endif %}</span>
                     </div>
                 </div>
                 <div class="listing-actions">
-                    <form method="GET" action="{{ url_for('edit_listing', listing_id=listing.id) }}">
-                        <button type="submit" class="btn-edit">Edit</button>
-                    </form>
+                    <button class="btn-edit"
+                        onclick="editListing('{{ listing.id }}', '{{ listing.food_type|escape }}', '{{ listing.quantity|escape }}', '{{ listing.description|escape }}', '{{ listing.best_before }}')">
+                        Edit
+                    </button>
                     <form method="POST" action="{{ url_for('remove_listing', listing_id=listing.id) }}">
                         <button type="submit" class="btn-remove">Remove</button>
                     </form>
                 </div>
             </div>
             {% endfor %}
-        {% else %}
+            {% else %}
             <div style="color:#5f7c6d; font-size:1.13rem;">No listings yet.</div>
-        {% endif %}
-    </div>
+            {% endif %}
+        </div>
 
-    <!-- Create Listing Tab -->
-    <div id="tab-create" style="display:none;">
-        <form class="create-listing-form" method="POST" action="{{ url_for('add_listing') }}">
-            <div class="create-listing-title"><i class="fa fa-plus"></i> Create Food Listing</div>
-            <div class="create-listing-fields">
-                <div class="form-group full-width">
-                    <label for="food_type">Food Type</label>
-                    <input type="text" id="food_type" name="food_type" placeholder="e.g., Fresh vegetables, Prepared meals" required>
+        <!-- Create Listing Tab -->
+        <div id="tab-create" style="display:none;">
+            <form class="create-listing-form" method="POST" action="{{ url_for('add_listing') }}">
+                <div class="create-listing-title"><i class="fa fa-plus"></i> Create Food Listing</div>
+                <div class="create-listing-fields">
+                    <div class="form-group full-width">
+                        <label for="food_type">Food Type</label>
+                        <input type="text" id="food_type" name="food_type"
+                            placeholder="e.g., Fresh vegetables, Prepared meals" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="quantity">Quantity</label>
+                        <input type="text" id="quantity" name="quantity" placeholder="e.g., 5kg, 20 portions" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="description">Description</label>
+                        <textarea id="description" name="description"
+                            placeholder="Describe the food items, cooking date, ingredients, etc." rows="2"></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="best_before">Best Before (Hours from now)</label>
+                        <input type="number" id="best_before" name="best_before" placeholder="e.g., 6" min="1" step="1"
+                            required oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                    </div>
                 </div>
-                <div class="form-group full-width">
-                    <label for="quantity">Quantity</label>
-                    <input type="text" id="quantity" name="quantity" placeholder="e.g., 5kg, 20 portions" required>
-                </div>
-                <div class="form-group full-width">
-                    <label for="description">Description</label>
-                    <textarea id="description" name="description" placeholder="Describe the food items, cooking date, ingredients, etc." rows="2"></textarea>
-                </div>
-                <div class="form-group full-width">
-                    <label for="best_before">Best Before (Hours from now)</label>
-                    <input type="number" id="best_before" name="best_before" placeholder="e.g., 6" min="1" required>
-                </div>
+                <button type="submit" class="create-listing-btn">Create Listing</button>
+            </form>
+        </div>
+
+        <!-- Pickup Requests Tab (Placeholder) -->
+        <div id="tab-requests" style="display:none;">
+            <div style="margin-top:24px; color:#5f7c6d; font-size:1.13rem;">
+                Pickup requests dashboard coming soon...
             </div>
-            <button type="submit" class="create-listing-btn">Create Listing</button>
-        </form>
-    </div>
-
-    <!-- Pickup Requests Tab (Placeholder) -->
-    <div id="tab-requests" style="display:none;">
-        <div style="margin-top:24px; color:#5f7c6d; font-size:1.13rem;">
-            Pickup requests dashboard coming soon...
         </div>
     </div>
-</div>
 
-<script>
-function showTab(tab) {
-    document.getElementById('tab-listings').style.display = (tab === 'listings') ? 'flex' : 'none';
-    document.getElementById('tab-create').style.display = (tab === 'create') ? 'block' : 'none';
-    document.getElementById('tab-requests').style.display = (tab === 'requests') ? 'block' : 'none';
-    document.querySelectorAll('.dashboard-tab').forEach(function(el, idx) {
-        el.classList.toggle('active', ['listings','create','requests'][idx] === tab);
-    });
-}
-function sortListings() {
-    // Sorting logic placeholder
-}
-</script>
+    <script>
+        function showTab(tab) {
+            document.getElementById('tab-listings').style.display = (tab === 'listings') ? 'flex' : 'none';
+            document.getElementById('tab-create').style.display = (tab === 'create') ? 'block' : 'none';
+            document.getElementById('tab-requests').style.display = (tab === 'requests') ? 'block' : 'none';
+            document.querySelectorAll('.dashboard-tab').forEach(function (el, idx) {
+                el.classList.toggle('active', ['listings', 'create', 'requests'][idx] === tab);
+            });
+        }
+        function sortListings() {
+            // Sorting logic placeholder
+        }
+
+        function editListing(id, foodType, quantity, description, bestBefore) {
+            // Show the "Create Listing" tab
+            showTab('create');
+
+            // Populate the form
+            document.getElementById('food_type').value = foodType;
+            document.getElementById('quantity').value = quantity;
+            document.getElementById('description').value = description;
+            document.getElementById('best_before').value = bestBefore;
+
+            // Change the form action to update the existing listing
+            const form = document.querySelector('.create-listing-form');
+            form.action = `/update_listing/${id}`;
+
+            // Change the button text to "Update Listing"
+            const btn = form.querySelector('.create-listing-btn');
+            btn.textContent = 'Update Listing';
+        }
+
+        function sortListings() {
+            const sortValue = document.getElementById('sort-listings').value;
+            const listingsContainer = document.getElementById('tab-listings');
+            const listingCards = Array.from(listingsContainer.getElementsByClassName('listing-card'));
+
+            if (sortValue === 'default') {
+                // Sort by ID (descending)
+                listingCards.sort((a, b) => {
+                    const idA = parseInt(a.dataset.id);
+                    const idB = parseInt(b.dataset.id);
+                    return idB - idA;  // Newest first
+                });
+            } else if (sortValue === 'best_before') {
+                listingCards.sort((a, b) => {
+                    const aText = a.querySelector('.listing-meta').innerText;
+                    const bText = b.querySelector('.listing-meta').innerText;
+
+                    const aMatch = aText.match(/Best before:\s*(\d+)/);
+                    const bMatch = bText.match(/Best before:\s*(\d+)/);
+
+                    const aValue = aMatch ? parseInt(aMatch[1]) : Infinity;
+                    const bValue = bMatch ? parseInt(bMatch[1]) : Infinity;
+
+                    return aValue - bValue;  // Soonest first
+                });
+            } else if (sortValue === 'distance') {
+                alert("Distance sorting coming soon...");
+                return;
+            }
+
+            // Reorder the DOM
+            listingCards.forEach(card => listingsContainer.appendChild(card));
+        }
+
+        window.addEventListener('DOMContentLoaded', function () {
+            sortListings(); // Apply default sorting when page loads
+        });
+
+    </script>
 </body>
+
 </html>
