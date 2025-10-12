@@ -27,6 +27,8 @@ class Listing(db.Model):
     description = db.Column(db.String(200))
     best_before = db.Column(db.String(20), nullable=False)
     address = db.Column(db.String(200), nullable=False)  # redundant for easy access
+    
+    donor = db.relationship('User', backref='listings')
 
 # Requests Table
 class Request(db.Model):
@@ -169,8 +171,48 @@ def add_listing():
 # NGO Dashboard
 @app.route('/ngo_dashboard')
 def ngo_dashboard():
-    # Logic to display all listings with distance calculation
-    return render_template('ngo_dashboard.html')
+    ngo_id = session.get('user_id')  # Assuming NGO is logged in and user_id in session
+
+    # All available listings (not requested or status is 'available')
+    listings = Listing.query.all()  # You may want to filter based on availability
+
+    # Requests made by this NGO
+    my_requests = (
+        Request.query.filter_by(ngo_id=ngo_id)
+        .join(Listing, Request.listing_id == Listing.id)
+        .add_entity(Listing)
+        .all()
+    )
+    # my_requests will be a list of (Request, Listing) tuples
+
+    return render_template(
+        'ngo_dashboard.html',
+        listings=listings,
+        my_requests=my_requests,
+        ngo_profile_pic_url='/static/profile.jpg'  # Example, adjust as needed
+    )
+
+@app.route('/request_listing/<int:listing_id>', methods=['POST'])
+def request_listing(listing_id):
+    ngo_id = session.get('user_id')
+    if not ngo_id:
+        # handle not logged in
+        return redirect(url_for('login'))
+
+    # Check if already requested
+    existing = Request.query.filter_by(listing_id=listing_id, ngo_id=ngo_id).first()
+    if not existing:
+        new_request = Request(listing_id=listing_id, ngo_id=ngo_id, status='pending')
+        db.session.add(new_request)
+        db.session.commit()
+
+    return redirect(url_for('ngo_dashboard'))
+
+@app.route('/listing/<int:listing_id>')
+def listing_details(listing_id):
+    listing = Listing.query.get_or_404(listing_id)
+    # Add any other data you want to show
+    return render_template('listing_details.html', listing=listing)
 
 @app.route('/profile', methods=['GET', 'POST'])
 def profile():

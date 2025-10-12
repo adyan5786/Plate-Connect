@@ -1,93 +1,104 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-    <title>NGO/Shelter Dashboard</title>
+    <title>NGO Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <style>
-        .profile-icon {
-            position: absolute;
-            top: 20px;
-            right: 40px;
-            width: 40px;
-            height: 40px;
-            background: #eee;
-            border-radius: 50%;
-            text-align: center;
-            line-height: 40px;
-            font-size: 20px;
-            cursor: pointer;
-        }
-
-        .logout-btn {
-            position: absolute;
-            top: 20px;
-            left: 40px;
-        }
-
-        .dashboard-header {
-            position: relative;
-        }
-    </style>
-    <script>
-        function filterListings() {
-            var maxDistance = document.getElementById('distance').value;
-            var rows = document.querySelectorAll('.listing-row');
-            rows.forEach(function (row) {
-                var dist = parseFloat(row.getAttribute('data-distance'));
-                if (maxDistance && dist > maxDistance) {
-                    row.style.display = 'none';
-                } else {
-                    row.style.display = '';
-                }
-            });
-        }
-    </script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='donor_dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='ngo_dashboard.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
-
 <body>
     <main>
-        <div class="container">
-            <div class="dashboard-header">
-                <form method="POST" action="{{ url_for('logout') }}" class="logout-btn">
-                    <button type="submit">Logout</button>
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <img src="../static/images/logo.png" alt="">
+                <a href="/" class="logo-text green-font">Plate</a>
+                <a href="/" class="logo-text dark-blue-font">Connect</a>
+                <form class='logout' method="POST" action="{{ url_for('logout') }}">
+                    <button type="submit" class="back-btn"><i class="fa fa-sign-out-alt"></i> Logout</button>
                 </form>
-                <h2>NGO/Shelter Dashboard</h2>
-                <a href="{{ url_for('profile') }}" class="profile-icon">&#128100;</a>
             </div>
-            <h3>Available Food Listings</h3>
-            <label for="distance">Show listings within (km):</label>
-            <input type="number" id="distance" min="0" placeholder="Distance in km" oninput="filterListings()">
-            <table width="100%">
-                <tr>
-                    <th>Type</th>
-                    <th>Quantity</th>
-                    <th>Description</th>
-                    <th>Best Before</th>
-                    <th>Donor Address</th>
-                    <th>Distance (km)</th>
-                    <th>Action</th>
-                </tr>
+        </header>
+
+        <div class="dashboard-container">
+            <div class="dashboard-header">
+                <div>
+                    <h1 class="dashboard-title">NGO Dashboard</h1>
+                    <div class="dashboard-subtitle">Browse available donations and track your pickup requests</div>
+                </div>
+            </div>
+            <div class="dashboard-tabs">
+                <button class="dashboard-tab active" onclick="showTab('donations')">Available Donations</button>
+                <button class="dashboard-tab" onclick="showTab('requests')">My Requests</button>
+            </div>
+
+            <!-- Donations Tab -->
+            <div id="tab-donations" class="listings-table">
+                <div style="margin-bottom: 8px;">
+                    <label for="sort-donations" style="font-weight: 500; color: #5f7c6d;">Sort by:</label>
+                    <select id="sort-donations" onchange="sortDonations()">
+                        <option value="default">Default</option>
+                        <option value="best_before">Best Before</option>
+                        <option value="urgency">Urgency (Coming Soon)</option>
+                    </select>
+                </div>
+                {% if listings %}
                 {% for listing in listings %}
-                <tr class="listing-row" data-distance="{{ listing.distance }}">
-                    <td>{{ listing.food_type }}</td>
-                    <td>{{ listing.quantity }}</td>
-                    <td>{{ listing.description }}</td>
-                    <td>{{ listing.best_before }}</td>
-                    <td>{{ listing.address }}</td>
-                    <td>{{ listing.distance }}</td>
-                    <td>
+                <div class="listing-card" data-id="{{ listing.id }}">
+                    <div class="listing-details">
+                        <div class="listing-title">{{ listing.food_type }}</div>
+                        <div class="listing-meta">
+                            <span><i class="fa fa-box icon"></i> {{ listing.quantity }}</span>
+                            <span><i class="fa fa-align-left icon"></i> {{ listing.description }}</span>
+                            <span><i class="fa fa-calendar icon"></i> Best before: {{ listing.best_before }}</span>
+                            <span><i class="fa fa-location-arrow icon"></i> {{ listing.address }}</span>
+                            <span><i class="fa fa-user icon"></i> Donor: {{ listing.donor.name if listing.donor else 'Unknown' }}</span>
+                        </div>
+                    </div>
+                    <div class="listing-actions">
                         <form method="POST" action="{{ url_for('request_listing', listing_id=listing.id) }}">
-                            <button type="submit">Request</button>
+                            <button type="submit" class="btn-edit">Request Pickup</button>
                         </form>
-                    </td>
-                </tr>
+                        <a href="{{ url_for('listing_details', listing_id=listing.id) }}" class="btn-edit">View Details</a>
+                    </div>
+                </div>
                 {% endfor %}
-            </table>
+                {% else %}
+                <div style="color:#5f7c6d; font-size:1.13rem;">No donations available.</div>
+                {% endif %}
+            </div>
+
+            <!-- My Requests Tab -->
+            <div id="tab-requests" class="listings-table" style="display:none;">
+                {% if my_requests %}
+                {% for req, listing in my_requests %}
+                <div class="listing-card" data-id="{{ listing.id }}">
+                    <div class="listing-details">
+                        <div class="listing-title">{{ listing.food_type }}</div>
+                        <div class="listing-meta">
+                            <span><i class="fa fa-box icon"></i> {{ listing.quantity }}</span>
+                            <span><i class="fa fa-align-left icon"></i> {{ listing.description }}</span>
+                            <span><i class="fa fa-calendar icon"></i> Best before: {{ listing.best_before }}</span>
+                            <span><i class="fa fa-location-arrow icon"></i> {{ listing.address }}</span>
+                            <span><i class="fa fa-user icon"></i> Donor: {{ listing.donor.name if listing.donor else 'Unknown' }}</span>
+                        </div>
+                    </div>
+                    <div class="listing-actions">
+                        <span class="btn-edit" style="background: #e6f7e6; color: #2b824c; cursor: default;">{{ req.status|capitalize }}</span>
+                        <a href="{{ url_for('listing_details', listing_id=listing.id) }}" class="btn-edit">View Details</a>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div style="color:#5f7c6d; font-size:1.13rem;">No requests made yet.</div>
+                {% endif %}
+            </div>
         </div>
     </main>
 
-        <footer class="footer">
+    <footer class="footer">
         <div class="container">
             <div>
                 <h1>Plate Connect</h1>
@@ -100,6 +111,21 @@
             </div>
         </div>
     </footer>
-</body>
 
+    <script>
+        function showTab(tab) {
+            document.getElementById('tab-donations').style.display = (tab === 'donations') ? 'flex' : 'none';
+            document.getElementById('tab-requests').style.display = (tab === 'requests') ? 'flex' : 'none';
+            document.querySelectorAll('.dashboard-tab').forEach(function (el, idx) {
+                el.classList.toggle('active', ['donations', 'requests'][idx] === tab);
+            });
+        }
+        function sortDonations() {
+            // Sorting logic placeholder (similar to donor_dashboard.html)
+        }
+        window.addEventListener('DOMContentLoaded', function () {
+            showTab('donations');
+        });
+    </script>
+</body>
 </html>
