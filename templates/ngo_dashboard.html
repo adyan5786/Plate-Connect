@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>NGO/Shelter Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
@@ -17,68 +18,88 @@
             font-size: 20px;
             cursor: pointer;
         }
+
         .logout-btn {
             position: absolute;
             top: 20px;
             left: 40px;
         }
+
         .dashboard-header {
             position: relative;
         }
     </style>
     <script>
-    function filterListings() {
-        var maxDistance = document.getElementById('distance').value;
-        var rows = document.querySelectorAll('.listing-row');
-        rows.forEach(function(row){
-            var dist = parseFloat(row.getAttribute('data-distance'));
-            if (maxDistance && dist > maxDistance) {
-                row.style.display = 'none';
-            } else {
-                row.style.display = '';
-            }
-        });
-    }
+        function filterListings() {
+            var maxDistance = document.getElementById('distance').value;
+            var rows = document.querySelectorAll('.listing-row');
+            rows.forEach(function (row) {
+                var dist = parseFloat(row.getAttribute('data-distance'));
+                if (maxDistance && dist > maxDistance) {
+                    row.style.display = 'none';
+                } else {
+                    row.style.display = '';
+                }
+            });
+        }
     </script>
 </head>
+
 <body>
-<div class="container">
-    <div class="dashboard-header">
-        <form method="POST" action="{{ url_for('logout') }}" class="logout-btn">
-            <button type="submit">Logout</button>
-        </form>
-        <h2>NGO/Shelter Dashboard</h2>
-        <a href="{{ url_for('profile') }}" class="profile-icon">&#128100;</a>
-    </div>
-    <h3>Available Food Listings</h3>
-    <label for="distance">Show listings within (km):</label>
-    <input type="number" id="distance" min="0" placeholder="Distance in km" oninput="filterListings()">
-    <table width="100%">
-        <tr>
-            <th>Type</th>
-            <th>Quantity</th>
-            <th>Description</th>
-            <th>Best Before</th>
-            <th>Donor Address</th>
-            <th>Distance (km)</th>
-            <th>Action</th>
-        </tr>
-        {% for listing in listings %}
-        <tr class="listing-row" data-distance="{{ listing.distance }}">
-            <td>{{ listing.food_type }}</td>
-            <td>{{ listing.quantity }}</td>
-            <td>{{ listing.description }}</td>
-            <td>{{ listing.best_before }}</td>
-            <td>{{ listing.address }}</td>
-            <td>{{ listing.distance }}</td>
-            <td>
-                <form method="POST" action="{{ url_for('request_listing', listing_id=listing.id) }}">
-                    <button type="submit">Request</button>
+    <main>
+        <div class="container">
+            <div class="dashboard-header">
+                <form method="POST" action="{{ url_for('logout') }}" class="logout-btn">
+                    <button type="submit">Logout</button>
                 </form>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
-</div>
+                <h2>NGO/Shelter Dashboard</h2>
+                <a href="{{ url_for('profile') }}" class="profile-icon">&#128100;</a>
+            </div>
+            <h3>Available Food Listings</h3>
+            <label for="distance">Show listings within (km):</label>
+            <input type="number" id="distance" min="0" placeholder="Distance in km" oninput="filterListings()">
+            <table width="100%">
+                <tr>
+                    <th>Type</th>
+                    <th>Quantity</th>
+                    <th>Description</th>
+                    <th>Best Before</th>
+                    <th>Donor Address</th>
+                    <th>Distance (km)</th>
+                    <th>Action</th>
+                </tr>
+                {% for listing in listings %}
+                <tr class="listing-row" data-distance="{{ listing.distance }}">
+                    <td>{{ listing.food_type }}</td>
+                    <td>{{ listing.quantity }}</td>
+                    <td>{{ listing.description }}</td>
+                    <td>{{ listing.best_before }}</td>
+                    <td>{{ listing.address }}</td>
+                    <td>{{ listing.distance }}</td>
+                    <td>
+                        <form method="POST" action="{{ url_for('request_listing', listing_id=listing.id) }}">
+                            <button type="submit">Request</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </main>
+
+        <footer class="footer">
+        <div class="container">
+            <div>
+                <h1>Plate Connect</h1>
+                <p>Copyright &copy; 2025</p>
+            </div>
+            <div class="social">
+                <a href="#"><i class="fab fa-facebook fa-2x"></i></a>
+                <a href="#"><i class="fab fa-instagram fa-2x"></i></a>
+                <a href="#"><i class="fab fa-x-twitter fa-2x"></i></a>
+            </div>
+        </div>
+    </footer>
 </body>
+
 </html>

@@ -10,108 +10,126 @@
 </head>
 
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="logo">
-            <img src="../static/images/logo.png" alt="">
-            <a href="/" class="logo-text green-font">Plate</a>
-            <a href="/" class="logo-text dark-blue-font">Connect</a>
-            <form class='logout' method="POST" action="{{ url_for('logout') }}">
-                <button type="submit" class="back-btn"><i class="fa fa-sign-out-alt"></i> Logout</button>
-            </form>
-        </div>
-    </header>
+    <main>
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <img src="../static/images/logo.png" alt="">
+                <a href="/" class="logo-text green-font">Plate</a>
+                <a href="/" class="logo-text dark-blue-font">Connect</a>
+                <form class='logout' method="POST" action="{{ url_for('logout') }}">
+                    <button type="submit" class="back-btn"><i class="fa fa-sign-out-alt"></i> Logout</button>
+                </form>
+            </div>
+        </header>
 
-    <div class="dashboard-container">
-        <div class="dashboard-header">
+        <div class="dashboard-container">
+            <div class="dashboard-header">
+                <div>
+                    <h1 class="dashboard-title">Donor Dashboard</h1>
+                    <div class="dashboard-subtitle">Manage your food donations and help reduce waste</div>
+                </div>
+            </div>
+            <div class="dashboard-tabs">
+                <button class="dashboard-tab active" onclick="showTab('listings')">My Listings</button>
+                <button class="dashboard-tab" onclick="showTab('create')">Create Listing</button>
+                <button class="dashboard-tab" onclick="showTab('requests')">Pickup Requests</button>
+            </div>
+
+            <!-- Listings Table -->
+            <div id="tab-listings" class="listings-table">
+                {% if listings %}
+                <div style="margin-bottom: 8px;">
+                    <label for="sort-listings" style="font-weight: 500; color: #5f7c6d;">Sort by:</label>
+                    <select id="sort-listings" onchange="sortListings()">
+                        <option value="default">Default</option>
+                        <option value="best_before">Best Before</option>
+                        <option value="distance">Distance (Coming Soon)</option>
+                    </select>
+                </div>
+                {% for listing in listings %}
+                <div class="listing-card" data-id="{{ listing.id }}">
+                    <div class="listing-details">
+                        <div class="listing-title">
+                            {{ listing.food_type }}
+                        </div>
+                        <div class="listing-meta">
+                            <span><i class="fa fa-box icon"></i> {{ listing.quantity }}</span>
+                            <span><i class="fa fa-align-left icon"></i> {{ listing.description }}</span>
+                            <span><i class="fa fa-clock icon"></i> Best before: {{ listing.best_before }}</span>
+                            <span><i class="fa fa-location-arrow icon"></i> Distance: {% if listing.distance %}{{
+                                listing.distance }} km{% else %}Coming soon{% endif %}</span>
+                        </div>
+                    </div>
+                    <div class="listing-actions">
+                        <button class="btn-edit"
+                            onclick="editListing('{{ listing.id }}', '{{ listing.food_type|escape }}', '{{ listing.quantity|escape }}', '{{ listing.description|escape }}', '{{ listing.best_before }}')">
+                            Edit
+                        </button>
+                        <form method="POST" action="{{ url_for('remove_listing', listing_id=listing.id) }}">
+                            <button type="submit" class="btn-remove">Remove</button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div style="color:#5f7c6d; font-size:1.13rem;">No listings yet.</div>
+                {% endif %}
+            </div>
+
+            <!-- Create Listing Tab -->
+            <div id="tab-create" style="display:none;">
+                <form class="create-listing-form" method="POST" action="{{ url_for('add_listing') }}">
+                    <div class="create-listing-title"><i class="fa fa-plus"></i> Create Food Listing</div>
+                    <div class="create-listing-fields">
+                        <div class="form-group full-width">
+                            <label for="food_type">Food Type</label>
+                            <input type="text" id="food_type" name="food_type"
+                                placeholder="e.g., Fresh vegetables, Prepared meals" required>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="quantity">Quantity</label>
+                            <input type="text" id="quantity" name="quantity" placeholder="e.g., 5kg, 20 portions"
+                                required>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="description">Description</label>
+                            <textarea id="description" name="description"
+                                placeholder="Describe the food items, cooking date, ingredients, etc."
+                                rows="2"></textarea>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="best_before">Best Before (Hours from now)</label>
+                            <input type="number" id="best_before" name="best_before" placeholder="e.g., 6" min="1"
+                                step="1" required oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                        </div>
+                    </div>
+                    <button type="submit" class="create-listing-btn">Create Listing</button>
+                </form>
+            </div>
+
+            <!-- Pickup Requests Tab (Placeholder) -->
+            <div id="tab-requests" style="display:none;">
+                <div style="margin-top:24px; color:#5f7c6d; font-size:1.13rem;">
+                    Pickup requests dashboard coming soon...
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
             <div>
-                <h1 class="dashboard-title">Donor Dashboard</h1>
-                <div class="dashboard-subtitle">Manage your food donations and help reduce waste</div>
+                <h1>Plate Connect</h1>
+                <p>Copyright &copy; 2025</p>
+            </div>
+            <div class="social">
+                <a href="#"><i class="fab fa-facebook fa-2x"></i></a>
+                <a href="#"><i class="fab fa-instagram fa-2x"></i></a>
+                <a href="#"><i class="fab fa-x-twitter fa-2x"></i></a>
             </div>
         </div>
-        <div class="dashboard-tabs">
-            <button class="dashboard-tab active" onclick="showTab('listings')">My Listings</button>
-            <button class="dashboard-tab" onclick="showTab('create')">Create Listing</button>
-            <button class="dashboard-tab" onclick="showTab('requests')">Pickup Requests</button>
-        </div>
-
-        <!-- Listings Table -->
-        <div id="tab-listings" class="listings-table">
-            {% if listings %}
-            <div style="margin-bottom: 8px;">
-                <label for="sort-listings" style="font-weight: 500; color: #5f7c6d;">Sort by:</label>
-                <select id="sort-listings" onchange="sortListings()">
-                    <option value="default">Default</option>
-                    <option value="best_before">Best Before</option>
-                    <option value="distance">Distance (Coming Soon)</option>
-                </select>
-            </div>
-            {% for listing in listings %}
-            <div class="listing-card" data-id="{{ listing.id }}">
-                <div class="listing-details">
-                    <div class="listing-title">
-                        {{ listing.food_type }}
-                    </div>
-                    <div class="listing-meta">
-                        <span><i class="fa fa-box icon"></i> {{ listing.quantity }}</span>
-                        <span><i class="fa fa-align-left icon"></i> {{ listing.description }}</span>
-                        <span><i class="fa fa-clock icon"></i> Best before: {{ listing.best_before }}</span>
-                        <span><i class="fa fa-location-arrow icon"></i> Distance: {% if listing.distance %}{{
-                            listing.distance }} km{% else %}Coming soon{% endif %}</span>
-                    </div>
-                </div>
-                <div class="listing-actions">
-                    <button class="btn-edit"
-                        onclick="editListing('{{ listing.id }}', '{{ listing.food_type|escape }}', '{{ listing.quantity|escape }}', '{{ listing.description|escape }}', '{{ listing.best_before }}')">
-                        Edit
-                    </button>
-                    <form method="POST" action="{{ url_for('remove_listing', listing_id=listing.id) }}">
-                        <button type="submit" class="btn-remove">Remove</button>
-                    </form>
-                </div>
-            </div>
-            {% endfor %}
-            {% else %}
-            <div style="color:#5f7c6d; font-size:1.13rem;">No listings yet.</div>
-            {% endif %}
-        </div>
-
-        <!-- Create Listing Tab -->
-        <div id="tab-create" style="display:none;">
-            <form class="create-listing-form" method="POST" action="{{ url_for('add_listing') }}">
-                <div class="create-listing-title"><i class="fa fa-plus"></i> Create Food Listing</div>
-                <div class="create-listing-fields">
-                    <div class="form-group full-width">
-                        <label for="food_type">Food Type</label>
-                        <input type="text" id="food_type" name="food_type"
-                            placeholder="e.g., Fresh vegetables, Prepared meals" required>
-                    </div>
-                    <div class="form-group full-width">
-                        <label for="quantity">Quantity</label>
-                        <input type="text" id="quantity" name="quantity" placeholder="e.g., 5kg, 20 portions" required>
-                    </div>
-                    <div class="form-group full-width">
-                        <label for="description">Description</label>
-                        <textarea id="description" name="description"
-                            placeholder="Describe the food items, cooking date, ingredients, etc." rows="2"></textarea>
-                    </div>
-                    <div class="form-group full-width">
-                        <label for="best_before">Best Before (Hours from now)</label>
-                        <input type="number" id="best_before" name="best_before" placeholder="e.g., 6" min="1" step="1"
-                            required oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                    </div>
-                </div>
-                <button type="submit" class="create-listing-btn">Create Listing</button>
-            </form>
-        </div>
-
-        <!-- Pickup Requests Tab (Placeholder) -->
-        <div id="tab-requests" style="display:none;">
-            <div style="margin-top:24px; color:#5f7c6d; font-size:1.13rem;">
-                Pickup requests dashboard coming soon...
-            </div>
-        </div>
-    </div>
+    </footer>
 
     <script>
         function showTab(tab) {

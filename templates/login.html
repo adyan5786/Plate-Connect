@@ -1,10 +1,15 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Login</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='auth.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css"
+        integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
+
 <body>
     <!-- Header -->
     <header class="header">
@@ -14,18 +19,35 @@
             <a href="/" class="logo-text dark-blue-font">Connect</a>
         </div>
     </header>
-    
-    <!-- Login Container -->
-    <div class="container">
-        <h2>Login</h2>
-        <form method="POST">
-            <input type="email" name="email" placeholder="Email" required>
-            <input type="password" name="password" placeholder="Password" required>
-            <button type="submit">Login</button>
-        </form>
-        <a href="{{ url_for('forgot_password') }}">Forgot Password?</a>
-        <br>
-        <a href="{{ url_for('signup') }}">Don't have an account? Sign Up</a>
-    </div>
+
+    <main>
+        <!-- Login Container -->
+        <div class="container">
+            <h2>Login</h2>
+            <form method="POST">
+                <input type="email" name="email" placeholder="Email" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit">Login</button>
+            </form>
+            <a href="{{ url_for('forgot_password') }}">Forgot Password?</a>
+            <br>
+            <a href="{{ url_for('signup') }}">Don't have an account? Sign Up</a>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div>
+                <h1>Plate Connect</h1>
+                <p>Copyright &copy; 2025</p>
+            </div>
+            <div class="social">
+                <a href="#"><i class="fab fa-facebook fa-2x"></i></a>
+                <a href="#"><i class="fab fa-instagram fa-2x"></i></a>
+                <a href="#"><i class="fab fa-x-twitter fa-2x"></i></a>
+            </div>
+        </div>
+    </footer>
 </body>
+
 </html>

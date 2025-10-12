@@ -1,11 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Food Donation Platform</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css"
+        integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
+
 <body>
     <!-- Header -->
     <header class="header">
@@ -16,66 +21,83 @@
         </div>
     </header>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="hero-content">
-            <h1 class="dark-blue-font">Connect Hearts Through <span class="green-font">Food</span></h1>
-            <p>
-                Join our platform that connects food donors with those who need it most.<br>
-                Reduce waste, fight hunger, and strengthen communities together.
-            </p>
-            <div class="hero-buttons">
-                <a href="{{ url_for('signup') }}" class="btn btn-green">Get Started</a>
-                <a href="{{ url_for('login') }}" class="btn btn-dark-blue">Sign In</a>
-            </div>
-            <div class="hero-stats">
-                <div>
-                    <span class="stat-number green-font">500+</span>
-                    <span class="stat-label">Meals Donated</span>
+    <main>
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-content">
+                <h1 class="dark-blue-font">Connect Hearts Through <span class="green-font">Food</span></h1>
+                <p>
+                    Join our platform that connects food donors with those who need it most.<br>
+                    Reduce waste, fight hunger, and strengthen communities together.
+                </p>
+                <div class="hero-buttons">
+                    <a href="{{ url_for('signup') }}" class="btn btn-green">Get Started</a>
+                    <a href="{{ url_for('login') }}" class="btn btn-dark-blue">Sign In</a>
                 </div>
-                <div>
-                    <span class="stat-number dark-blue-font">50+</span>
-                    <span class="stat-label">Active Partners</span>
+                <div class="hero-stats">
+                    <div>
+                        <span class="stat-number green-font">500+</span>
+                        <span class="stat-label">Meals Donated</span>
+                    </div>
+                    <div>
+                        <span class="stat-number dark-blue-font">50+</span>
+                        <span class="stat-label">Active Partners</span>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="hero-image">
-            <img src="{{ url_for('static', filename='images/hero.png') }}" alt="Food Donation Illustration">
-        </div>
-    </section>
+            <div class="hero-image">
+                <img src="{{ url_for('static', filename='images/hero.png') }}" alt="Food Donation Illustration">
+            </div>
+        </section>
 
-    <!-- How It Works Section -->
-    <section class="how-it-works">
-        <h2>How Plate Connect Works</h2>
-        <p class="how-desc">Simple steps to connect food donors with those who need it most</p>
-        <div class="how-cards">
-            <div class="how-card">
-                <div class="card-icon green-bg">
-                    <span>&#x1F4E6;</span>
+        <!-- How It Works Section -->
+        <section class="how-it-works">
+            <h2>How Plate Connect Works</h2>
+            <p class="how-desc">Simple steps to connect food donors with those who need it most</p>
+            <div class="how-cards">
+                <div class="how-card">
+                    <div class="card-icon green-bg">
+                        <span>&#x1F4E6;</span>
+                    </div>
+                    <h3>For Food Donors</h3>
+                    <ol>
+                        <li>Create an account as a food donor</li>
+                        <li>List your available food with details</li>
+                        <li>Receive requests from nearby NGOs</li>
+                        <li>Coordinate pickup and make a difference</li>
+                    </ol>
+                    <a href="{{ url_for('signup') }}" class="btn btn-green">Start Donating</a>
                 </div>
-                <h3>For Food Donors</h3>
-                <ol>
-                    <li>Create an account as a food donor</li>
-                    <li>List your available food with details</li>
-                    <li>Receive requests from nearby NGOs</li>
-                    <li>Coordinate pickup and make a difference</li>
-                </ol>
-                <a href="{{ url_for('signup') }}" class="btn btn-green">Start Donating</a>
+                <div class="how-card">
+                    <div class="card-icon green-bg">
+                        <span>&#x1F465;</span>
+                    </div>
+                    <h3>For NGOs & Shelters</h3>
+                    <ol>
+                        <li>Register your organization</li>
+                        <li>Browse available food donations</li>
+                        <li>Filter by distance and food type</li>
+                        <li>Request food and arrange pickup</li>
+                    </ol>
+                    <a href="#" class="btn btn-green">Join as NGO</a>
+                </div>
             </div>
-            <div class="how-card">
-                <div class="card-icon green-bg">
-                    <span>&#x1F465;</span>
-                </div>
-                <h3>For NGOs & Shelters</h3>
-                <ol>
-                    <li>Register your organization</li>
-                    <li>Browse available food donations</li>
-                    <li>Filter by distance and food type</li>
-                    <li>Request food and arrange pickup</li>
-                </ol>
-                <a href="#" class="btn btn-green">Join as NGO</a>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div>
+                <h1>Plate Connect</h1>
+                <p>Copyright &copy; 2025</p>
+            </div>
+            <div class="social">
+                <a href="#"><i class="fab fa-facebook fa-2x"></i></a>
+                <a href="#"><i class="fab fa-instagram fa-2x"></i></a>
+                <a href="#"><i class="fab fa-x-twitter fa-2x"></i></a>
             </div>
         </div>
-    </section>
+    </footer>
 </body>
+
 </html>
