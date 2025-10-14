@@ -180,6 +180,8 @@
     </footer>
 
     <script>
+        let isEditing = false; // Track if currently editing
+
         function showTab(tab) {
             document.getElementById('tab-listings').style.display = (tab === 'listings') ? 'flex' : 'none';
             document.getElementById('tab-create').style.display = (tab === 'create') ? 'block' : 'none';
@@ -188,27 +190,31 @@
             document.querySelectorAll('.dashboard-tab').forEach(function (el, idx) {
                 el.classList.toggle('active', ['listings', 'create', 'requests', 'history'][idx] === tab);
             });
-        }
-        function sortListings() {
-            // Sorting logic placeholder
-            const sortValue = document.getElementById('sort-listings').value;
-            const listingsContainer = document.getElementById('tab-listings');
-            const listingCards = Array.from(listingsContainer.getElementsByClassName('listing-card'));
 
-            // Only Default sort remains
-            if (sortValue === 'default') {
-                listingCards.sort((a, b) => {
-                    const idA = parseInt(a.dataset.id);
-                    const idB = parseInt(b.dataset.id);
-                    return idB - idA;  // Newest first
-                });
+            // If switching to create tab without editing, reset form
+            if (tab === 'create' && !isEditing) {
+                resetCreateListingForm();
+            } else if (tab !== 'create') {
+                isEditing = false;
+                resetCreateListingForm();
             }
+        }
 
-            // Reorder the DOM
-            listingCards.forEach(card => listingsContainer.appendChild(card));
+        function resetCreateListingForm() {
+            const form = document.querySelector('.create-listing-form');
+            form.action = "{{ url_for('add_listing') }}"; // Reset to add_listing route
+            const btn = form.querySelector('.create-listing-btn');
+            btn.textContent = 'Create Listing';
+
+            // Clear input fields
+            document.getElementById('food_type').value = '';
+            document.getElementById('quantity').value = '';
+            document.getElementById('description').value = '';
         }
 
         function editListing(id, foodType, quantity, description) {
+            isEditing = true; // Mark as editing
+
             // Show the "Create Listing" tab
             showTab('create');
 
@@ -219,7 +225,7 @@
 
             // Change the form action to update the existing listing
             const form = document.querySelector('.create-listing-form');
-            form.action = `/update_listing/${id}`;
+            form.action = "/update_listing/" + id;
 
             // Change the button text to "Update Listing"
             const btn = form.querySelector('.create-listing-btn');
@@ -227,9 +233,8 @@
         }
 
         window.addEventListener('DOMContentLoaded', function () {
-            sortListings(); // Apply default sorting when page loads
+            sortListings();
         });
-
     </script>
 </body>
 
