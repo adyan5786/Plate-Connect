@@ -32,12 +32,11 @@ class Listing(db.Model):
     __table_args__ = {"sqlite_autoincrement": True}
 
 
-# Requests Table
+# Requests Table (status column removed)
 class Request(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     listing_id = db.Column(db.Integer, db.ForeignKey("listing.id"), nullable=False)
     ngo_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    status = db.Column(db.String(20), default="pending")
 
 
 # History Table
@@ -57,7 +56,6 @@ class History(db.Model):
     listing = db.relationship("Listing")
 
 
-# Helper Functions and Routes
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -73,7 +71,6 @@ def signup():
         user_type = request.form["user_type"]
         purpose = request.form.get("purpose", "")
 
-        # Check if email already exists
         existing_user = User.query.filter_by(email=email).first()
         if existing_user:
             flash(
@@ -144,9 +141,7 @@ def donor_dashboard():
     listings = Listing.query.filter_by(donor_id=donor_id).all()
     pickup_requests = []
     for listing in listings:
-        requests = Request.query.filter_by(
-            listing_id=listing.id, status="pending"
-        ).all()
+        requests = Request.query.filter_by(listing_id=listing.id).all()
         for req in requests:
             ngo_user = User.query.get(req.ngo_id)
             pickup_requests.append(
@@ -184,7 +179,6 @@ def edit_listing(listing_id):
     listing = Listing.query.get_or_404(listing_id)
 
     if request.method == "POST":
-        # update listing here
         listing.food_type = request.form["food_type"]
         listing.quantity = request.form["quantity"]
         listing.description = request.form["description"]
@@ -198,7 +192,6 @@ def edit_listing(listing_id):
 def remove_listing(listing_id):
     listing = Listing.query.get_or_404(listing_id)
     donor_id = session.get("user_id")
-    # Save to History table with status 'removed'
     history_entry = History(
         donor_id=donor_id,
         ngo_id=None,  # No NGO involved
@@ -218,12 +211,9 @@ def remove_listing(listing_id):
 @app.route("/update_listing/<int:listing_id>", methods=["POST"])
 def update_listing(listing_id):
     listing = Listing.query.get_or_404(listing_id)
-
-    # You might want to verify that the logged-in user owns the listing
     donor_id = session.get("user_id")
     if listing.donor_id != donor_id:
-        abort(403)  # Forbidden
-
+        abort(403)
     listing.food_type = request.form["food_type"]
     listing.quantity = request.form["quantity"]
     listing.description = request.form["description"]
@@ -238,13 +228,10 @@ def add_listing():
     if user is None or user.user_type != "donor":
         flash("Unauthorized.")
         return redirect(url_for("login"))
-    # Get form data
     food_type = request.form["food_type"]
     quantity = request.form["quantity"]
     description = request.form["description"]
-    # Use donor's address from user object
     address = user.address
-    # Create new listing
     listing = Listing(
         donor_id=user.id,
         food_type=food_type,
@@ -264,10 +251,6 @@ def update_request_status(request_id, new_status):
         flash("Invalid status")
         return redirect(url_for("donor_dashboard"))
 
-    req.status = new_status
-    db.session.commit()
-
-    # Fetch the listing safely
     listing = Listing.query.get(req.listing_id)
     if not listing:
         flash("Listing not found for this request.")
@@ -276,11 +259,10 @@ def update_request_status(request_id, new_status):
     ngo_user = User.query.get(req.ngo_id)
     donor_user = User.query.get(listing.donor_id)
 
-    # Save to History table with the listing_id
     history_entry = History(
         donor_id=donor_user.id,
         ngo_id=ngo_user.id,
-        listing_id=listing.id,  # <-- This must never be None!
+        listing_id=listing.id,
         food_type=listing.food_type,
         quantity=listing.quantity,
         description=listing.description,
@@ -288,9 +270,9 @@ def update_request_status(request_id, new_status):
         status=new_status,
     )
     db.session.add(history_entry)
+    db.session.delete(req)
     db.session.commit()
 
-    # If approved, remove listing from Listing table
     if new_status == "approved":
         db.session.delete(listing)
         db.session.commit()
@@ -299,39 +281,40 @@ def update_request_status(request_id, new_status):
     return redirect(url_for("donor_dashboard"))
 
 
-# NGO Dashboard
 @app.route("/ngo_dashboard")
 def ngo_dashboard():
     ngo_id = session.get("user_id")
     if not ngo_id:
         return redirect(url_for("login"))
 
-    # 1. Get IDs of listings already approved (i.e., not available)
     approved_listing_ids = [
         h.listing_id for h in History.query.filter_by(status="approved").all()
     ]
-    # 2. Get IDs of listings already requested by THIS NGO (to exclude from available)
     requested_listing_ids = [
         req.listing_id for req in Request.query.filter_by(ngo_id=ngo_id).all()
     ]
-
-    # 3. Show only listings NOT requested by this NGO and NOT already approved
     listings = Listing.query.filter(
         ~Listing.id.in_(requested_listing_ids + approved_listing_ids)
     ).all()
 
-    # 4. My Requests: Only requests made by this NGO (with status)
-    my_requests = (
+    # Pending requests from Request table
+    pending_requests = (
         Request.query.filter_by(ngo_id=ngo_id)
         .join(Listing, Request.listing_id == Listing.id)
         .add_entity(Listing)
         .all()
     )
 
+    # Approved/rejected requests from History table
+    my_history = History.query.filter(
+        History.ngo_id == ngo_id, History.status.in_(["approved", "rejected"])
+    ).all()
+
     return render_template(
         "ngo_dashboard.html",
         listings=listings,
-        my_requests=my_requests,
+        pending_requests=pending_requests,
+        my_history=my_history,
         ngo_profile_pic_url="/static/profile.jpg",
     )
 
@@ -340,13 +323,11 @@ def ngo_dashboard():
 def request_listing(listing_id):
     ngo_id = session.get("user_id")
     if not ngo_id:
-        # handle not logged in
         return redirect(url_for("login"))
 
-    # Check if already requested
     existing = Request.query.filter_by(listing_id=listing_id, ngo_id=ngo_id).first()
     if not existing:
-        new_request = Request(listing_id=listing_id, ngo_id=ngo_id, status="pending")
+        new_request = Request(listing_id=listing_id, ngo_id=ngo_id)
         db.session.add(new_request)
         db.session.commit()
 
@@ -356,7 +337,6 @@ def request_listing(listing_id):
 @app.route("/listing/<int:listing_id>")
 def listing_details(listing_id):
     listing = Listing.query.get_or_404(listing_id)
-    # Add any other data you want to show
     return render_template("listing_details.html", listing=listing)
 
 
@@ -365,12 +345,10 @@ def profile():
     user_id = session.get("user_id")
     user = User.query.get(user_id)
     if request.method == "POST":
-        # Update user info
         user.name = request.form["name"]
         user.address = request.form["address"]
         if user.user_type == "ngo":
             user.purpose = request.form["purpose"]
-        # Handle password change
         new_password = request.form["new_password"]
         confirm_password = request.form["confirm_password"]
         if new_password and new_password == confirm_password:

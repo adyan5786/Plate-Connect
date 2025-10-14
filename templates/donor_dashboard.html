@@ -100,7 +100,7 @@
             </div>
 
             <!-- Pickup Requests Tab -->
-            <div id="tab-requests" style="display:none;">
+            <div id="tab-requests" class="listings-table" style="display:none;">
                 {% if pickup_requests %}
                 {% for entry in pickup_requests %}
                 <div class="listing-card pickup-request-card" data-id="{{ entry.listing.id }}">
@@ -132,6 +132,7 @@
                 {% endif %}
             </div>
 
+            <!-- Request History Tab -->
             <div id="tab-history" class="listings-table" style="display:none;">
                 {% if request_history %}
                 {% for entry in request_history %}
@@ -185,7 +186,7 @@
         function showTab(tab) {
             document.getElementById('tab-listings').style.display = (tab === 'listings') ? 'flex' : 'none';
             document.getElementById('tab-create').style.display = (tab === 'create') ? 'block' : 'none';
-            document.getElementById('tab-requests').style.display = (tab === 'requests') ? 'block' : 'none';
+            document.getElementById('tab-requests').style.display = (tab === 'requests') ? 'flex' : 'none';
             document.getElementById('tab-history').style.display = (tab === 'history') ? 'flex' : 'none';
             document.querySelectorAll('.dashboard-tab').forEach(function (el, idx) {
                 el.classList.toggle('active', ['listings', 'create', 'requests', 'history'][idx] === tab);

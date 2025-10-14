@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <title>NGO Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
@@ -8,6 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
+
 <body>
     <main>
         <!-- Header -->
@@ -59,7 +61,6 @@
                         <form method="POST" action="{{ url_for('request_listing', listing_id=listing.id) }}">
                             <button type="submit" class="btn-edit">Request Pickup</button>
                         </form>
-                        <!-- Removed View Details button -->
                     </div>
                 </div>
                 {% endfor %}
@@ -70,8 +71,9 @@
 
             <!-- My Requests Tab -->
             <div id="tab-requests" class="listings-table" style="display:none;">
-                {% if my_requests %}
-                {% for req, listing in my_requests %}
+                <h3>Pending Requests</h3>
+                {% if pending_requests %}
+                {% for req, listing in pending_requests %}
                 <div class="listing-card" data-id="{{ listing.id }}">
                     <div class="listing-details">
                         <div class="listing-title">{{ listing.food_type }}</div>
@@ -83,13 +85,38 @@
                         </div>
                     </div>
                     <div class="listing-actions">
-                        <span class="btn-edit" style="background: #e6f7e6; color: #2b824c; cursor: default;">{{ req.status|capitalize }}</span>
-                        <!-- Removed View Details button -->
+                        <span class="btn-edit" style="background: #e6f7e6; color: #2b824c; cursor: default;">Pending</span>
                     </div>
                 </div>
                 {% endfor %}
                 {% else %}
-                <div style="color:#5f7c6d; font-size:1.13rem;">No requests made yet.</div>
+                <div style="color:#5f7c6d; font-size:1.13rem;">No pending requests made yet.</div>
+                {% endif %}
+
+                <h3>Request History</h3>
+                {% if my_history %}
+                {% for h in my_history %}
+                <div class="listing-card" data-id="{{ h.listing_id }}">
+                    <div class="listing-details">
+                        <div class="listing-title">{{ h.food_type }}</div>
+                        <div class="listing-meta">
+                            <span><i class="fa fa-box icon"></i> {{ h.quantity }}</span>
+                            <span><i class="fa fa-align-left icon"></i> {{ h.description }}</span>
+                            <span><i class="fa fa-location-arrow icon"></i> {{ h.address }}</span>
+                            <span><i class="fa fa-user icon"></i> Donor: {{ h.donor.name if h.donor else 'Unknown' }}</span>
+                        </div>
+                    </div>
+                    <div class="listing-actions">
+                        {% if h.status == "approved" %}
+                        <span class="btn-edit" style="background: #e6f7e6; color: #2b824c; cursor: default;">Approved</span>
+                        {% elif h.status == "rejected" %}
+                        <span class="btn-edit" style="background: #f9e2e2; color: #c0392b; cursor: default;">Rejected</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div style="color:#5f7c6d; font-size:1.13rem;">No request history yet.</div>
                 {% endif %}
             </div>
         </div>
@@ -118,7 +145,7 @@
             });
         }
         function sortDonations() {
-            // Sorting logic placeholder (similar to donor_dashboard.html)
+            // Sorting logic placeholder
         }
         window.addEventListener('DOMContentLoaded', function () {
             showTab('donations');
