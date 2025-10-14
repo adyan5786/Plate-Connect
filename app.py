@@ -65,6 +65,13 @@ def signup():
         address = request.form['address']
         user_type = request.form['user_type']
         purpose = request.form.get('purpose', '')
+
+        # Check if email already exists
+        existing_user = User.query.filter_by(email=email).first()
+        if existing_user:
+            flash('An account with that email already exists. Please login or use another email.')
+            return redirect(url_for('signup'))
+
         password_hash = generate_password_hash(password)
         user = User(email=email, password_hash=password_hash, name=name, address=address, user_type=user_type, purpose=purpose)
         db.session.add(user)
@@ -104,6 +111,7 @@ def forgot_password():
             return redirect(url_for('login'))
         else:
             flash('Email not found or passwords do not match')
+            return render_template('forgot_password.html')
     return render_template('forgot_password.html')
 
 # Donor Dashboard

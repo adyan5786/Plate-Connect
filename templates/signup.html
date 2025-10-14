@@ -38,6 +38,17 @@
 
         <!-- Signup Container -->
         <div class="container">
+
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <div class="alert-message" id="alert-message">
+                {% for message in messages %}
+                <span>{{ message }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+
             <h2>Sign Up</h2>
             <form method="POST">
                 <input type="email" name="email" placeholder="Email" required>
@@ -70,6 +81,17 @@
             </div>
         </div>
     </footer>
+
+    <script>
+        window.onload = function () {
+            var alert = document.getElementById('alert-message');
+            if (alert) {
+                setTimeout(function () {
+                    alert.style.display = 'none';
+                }, 3000); // 3 seconds
+            }
+        };
+    </script>
 </body>
 
 </html>

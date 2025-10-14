@@ -115,6 +115,22 @@
     text-decoration: underline;
 }
 
+/* Plate Connect styled alert for flash messages */
+.alert-message {
+    width: 100%;
+    max-width: 370px;
+    margin: 0 auto 18px auto;
+    padding: 16px 18px;
+    background: #fff6f6;
+    border: 1.5px solid #ffc8c8;
+    border-radius: 10px;
+    color: #c0392b;
+    font-size: 1.08rem;
+    font-weight: 500;
+    text-align: center;
+    box-shadow: 0 2px 12px rgba(192, 57, 43, 0.07);
+}
+
 /* Responsive */
 @media (max-width: 600px) {
     .container > form {
