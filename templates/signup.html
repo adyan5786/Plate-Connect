@@ -8,21 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css"
         integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <script>
-        function togglePurpose() {
-            var userType = document.getElementById('user_type').value;
-            var purposeDiv = document.getElementById('purpose-field');
-            if (userType === 'ngo') {
-                purposeDiv.style.display = 'block';
-            } else {
-                purposeDiv.style.display = 'none';
-            }
-        }
-        window.onload = function () {
-            togglePurpose();
-            document.getElementById('user_type').addEventListener('change', togglePurpose);
-        }
-    </script>
 </head>
 
 <body>
@@ -83,12 +68,34 @@
     </footer>
 
     <script>
+        function togglePurpose() {
+            var userType = document.getElementById('user_type');
+            var purposeDiv = document.getElementById('purpose-field');
+            if (!userType || !purposeDiv) return;
+            if (userType.value === 'ngo') {
+                purposeDiv.style.display = 'block';
+            } else {
+                purposeDiv.style.display = 'none';
+            }
+        }
+
         window.onload = function () {
+            // Purpose field logic
+            togglePurpose();
+            var userType = document.getElementById('user_type');
+            if (userType) {
+                userType.addEventListener('change', togglePurpose);
+            }
+
+            // Alert fade-out logic
             var alerts = document.querySelectorAll('.alert-message');
             if (alerts.length > 0) {
                 setTimeout(function () {
                     alerts.forEach(function (alert) {
                         alert.classList.add('hide');
+                        setTimeout(function () {
+                            alert.style.display = 'none';
+                        }, 800); // slightly more than transition duration
                     });
                 }, 3000);
             }

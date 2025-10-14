@@ -143,17 +143,23 @@
                         <div class="listing-meta">
                             <span><i class="fa fa-box icon"></i> {{ entry.quantity }}</span>
                             <span><i class="fa fa-align-left icon"></i> {{ entry.description }}</span>
+                            {% if entry.ngo_name %}
                             <span class="history-accepted"><i class="fa fa-user icon"></i> Accepted by: {{
                                 entry.ngo_name }}</span>
+                            {% endif %}
                         </div>
                     </div>
                     <div class="listing-actions">
+                        {% if entry.status == "approved" %}
                         <span class="history-approved-badge">Approved</span>
+                        {% elif entry.status == "removed" %}
+                        <span class="history-approved-badge" style="background:#f9e2e2; color:#c0392b;">Removed</span>
+                        {% endif %}
                     </div>
                 </div>
                 {% endfor %}
                 {% else %}
-                <div style="color:#5f7c6d; font-size:1.13rem;">No approved request history yet.</div>
+                <div style="color:#5f7c6d; font-size:1.13rem;">No approved or removed request history yet.</div>
                 {% endif %}
             </div>
         </div>
@@ -178,7 +184,7 @@
             document.getElementById('tab-listings').style.display = (tab === 'listings') ? 'flex' : 'none';
             document.getElementById('tab-create').style.display = (tab === 'create') ? 'block' : 'none';
             document.getElementById('tab-requests').style.display = (tab === 'requests') ? 'block' : 'none';
-            document.getElementById('tab-history').style.display = (tab === 'history') ? 'block' : 'none';
+            document.getElementById('tab-history').style.display = (tab === 'history') ? 'flex' : 'none';
             document.querySelectorAll('.dashboard-tab').forEach(function (el, idx) {
                 el.classList.toggle('active', ['listings', 'create', 'requests', 'history'][idx] === tab);
             });
