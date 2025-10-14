@@ -309,6 +309,33 @@ select:focus {
   background: #217a53;
 }
 
+.pickup-requester {
+  font-weight: 600;
+  color: #2b824c;
+}
+
+.approve-btn {
+  background: #e6f7e6;
+  color: #2b824c;
+  border: 1px solid #c1e2c1;
+}
+
+.approve-btn:hover {
+  background: #2b824c;
+  color: #fff;
+}
+
+.reject-btn {
+  background: #f9e2e2;
+  color: #c0392b;
+  border: 1px solid #f9e2e2;
+}
+
+.reject-btn:hover {
+  background: #c0392b;
+  color: #fff;
+}
+
 @media (max-width: 900px) {
   .dashboard-container {
     padding: 24px 8px;

@@ -43,8 +43,6 @@
                     <label for="sort-listings" style="font-weight: 500; color: #5f7c6d;">Sort by:</label>
                     <select id="sort-listings" onchange="sortListings()">
                         <option value="default">Default</option>
-                        <option value="best_before">Best Before</option>
-                        <option value="distance">Distance (Coming Soon)</option>
                     </select>
                 </div>
                 {% for listing in listings %}
@@ -56,14 +54,11 @@
                         <div class="listing-meta">
                             <span><i class="fa fa-box icon"></i> {{ listing.quantity }}</span>
                             <span><i class="fa fa-align-left icon"></i> {{ listing.description }}</span>
-                            <span><i class="fa fa-clock icon"></i> Best before: {{ listing.best_before }}</span>
-                            <span><i class="fa fa-location-arrow icon"></i> Distance: {% if listing.distance %}{{
-                                listing.distance }} km{% else %}Coming soon{% endif %}</span>
                         </div>
                     </div>
                     <div class="listing-actions">
                         <button class="btn-edit"
-                            onclick="editListing('{{ listing.id }}', '{{ listing.food_type|escape }}', '{{ listing.quantity|escape }}', '{{ listing.description|escape }}', '{{ listing.best_before }}')">
+                            onclick="editListing('{{ listing.id }}', '{{ listing.food_type|escape }}', '{{ listing.quantity|escape }}', '{{ listing.description|escape }}')">
                             Edit
                         </button>
                         <form method="POST" action="{{ url_for('remove_listing', listing_id=listing.id) }}">
@@ -98,21 +93,42 @@
                                 placeholder="Describe the food items, cooking date, ingredients, etc."
                                 rows="2"></textarea>
                         </div>
-                        <div class="form-group full-width">
-                            <label for="best_before">Best Before (Hours from now)</label>
-                            <input type="number" id="best_before" name="best_before" placeholder="e.g., 6" min="1"
-                                step="1" required oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                        </div>
                     </div>
                     <button type="submit" class="create-listing-btn">Create Listing</button>
                 </form>
             </div>
 
-            <!-- Pickup Requests Tab (Placeholder) -->
+            <!-- Pickup Requests Tab -->
             <div id="tab-requests" style="display:none;">
-                <div style="margin-top:24px; color:#5f7c6d; font-size:1.13rem;">
-                    Pickup requests dashboard coming soon...
+                {% if pickup_requests %}
+                {% for entry in pickup_requests %}
+                <div class="listing-card pickup-request-card" data-id="{{ entry.listing.id }}">
+                    <div class="listing-details">
+                        <div class="listing-title">
+                            {{ entry.listing.food_type }}
+                        </div>
+                        <div class="listing-meta">
+                            <span><i class="fa fa-box icon"></i> {{ entry.listing.quantity }}</span>
+                            <span><i class="fa fa-align-left icon"></i> {{ entry.listing.description }}</span>
+                            <span class="pickup-requester"><i class="fa fa-user icon"></i> Requested by: {{
+                                entry.ngo.name }}</span>
+                        </div>
+                    </div>
+                    <div class="listing-actions">
+                        <form method="POST"
+                            action="{{ url_for('update_request_status', request_id=entry.request.id, new_status='approved') }}">
+                            <button type="submit" class="btn-edit approve-btn">Approve</button>
+                        </form>
+                        <form method="POST"
+                            action="{{ url_for('update_request_status', request_id=entry.request.id, new_status='rejected') }}">
+                            <button type="submit" class="btn-remove reject-btn">Reject</button>
+                        </form>
+                    </div>
                 </div>
+                {% endfor %}
+                {% else %}
+                <div style="color:#5f7c6d; font-size:1.13rem;">No pickup requests yet.</div>
+                {% endif %}
             </div>
         </div>
     </main>
@@ -142,9 +158,24 @@
         }
         function sortListings() {
             // Sorting logic placeholder
+            const sortValue = document.getElementById('sort-listings').value;
+            const listingsContainer = document.getElementById('tab-listings');
+            const listingCards = Array.from(listingsContainer.getElementsByClassName('listing-card'));
+
+            // Only Default sort remains
+            if (sortValue === 'default') {
+                listingCards.sort((a, b) => {
+                    const idA = parseInt(a.dataset.id);
+                    const idB = parseInt(b.dataset.id);
+                    return idB - idA;  // Newest first
+                });
+            }
+
+            // Reorder the DOM
+            listingCards.forEach(card => listingsContainer.appendChild(card));
         }
 
-        function editListing(id, foodType, quantity, description, bestBefore) {
+        function editListing(id, foodType, quantity, description) {
             // Show the "Create Listing" tab
             showTab('create');
 
@@ -152,7 +183,6 @@
             document.getElementById('food_type').value = foodType;
             document.getElementById('quantity').value = quantity;
             document.getElementById('description').value = description;
-            document.getElementById('best_before').value = bestBefore;
 
             // Change the form action to update the existing listing
             const form = document.querySelector('.create-listing-form');
@@ -161,40 +191,6 @@
             // Change the button text to "Update Listing"
             const btn = form.querySelector('.create-listing-btn');
             btn.textContent = 'Update Listing';
-        }
-
-        function sortListings() {
-            const sortValue = document.getElementById('sort-listings').value;
-            const listingsContainer = document.getElementById('tab-listings');
-            const listingCards = Array.from(listingsContainer.getElementsByClassName('listing-card'));
-
-            if (sortValue === 'default') {
-                // Sort by ID (descending)
-                listingCards.sort((a, b) => {
-                    const idA = parseInt(a.dataset.id);
-                    const idB = parseInt(b.dataset.id);
-                    return idB - idA;  // Newest first
-                });
-            } else if (sortValue === 'best_before') {
-                listingCards.sort((a, b) => {
-                    const aText = a.querySelector('.listing-meta').innerText;
-                    const bText = b.querySelector('.listing-meta').innerText;
-
-                    const aMatch = aText.match(/Best before:\s*(\d+)/);
-                    const bMatch = bText.match(/Best before:\s*(\d+)/);
-
-                    const aValue = aMatch ? parseInt(aMatch[1]) : Infinity;
-                    const bValue = bMatch ? parseInt(bMatch[1]) : Infinity;
-
-                    return aValue - bValue;  // Soonest first
-                });
-            } else if (sortValue === 'distance') {
-                alert("Distance sorting coming soon...");
-                return;
-            }
-
-            // Reorder the DOM
-            listingCards.forEach(card => listingsContainer.appendChild(card));
         }
 
         window.addEventListener('DOMContentLoaded', function () {

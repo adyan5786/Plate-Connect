@@ -25,7 +25,6 @@ class Listing(db.Model):
     food_type = db.Column(db.String(50), nullable=False)
     quantity = db.Column(db.String(50), nullable=False)
     description = db.Column(db.String(200))
-    best_before = db.Column(db.String(20), nullable=False)
     address = db.Column(db.String(200), nullable=False)  # redundant for easy access
     
     donor = db.relationship('User', backref='listings')
@@ -36,6 +35,21 @@ class Request(db.Model):
     listing_id = db.Column(db.Integer, db.ForeignKey('listing.id'), nullable=False)
     ngo_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     status = db.Column(db.String(20), default='pending')
+
+# History Table
+class History(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    donor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    ngo_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    # Listing fields duplicated below
+    food_type = db.Column(db.String(50), nullable=False)
+    quantity = db.Column(db.String(50), nullable=False)
+    description = db.Column(db.String(200))
+    address = db.Column(db.String(200), nullable=False)
+    status = db.Column(db.String(20), nullable=False)  # 'approved' or 'rejected'
+
+    donor = db.relationship('User', foreign_keys=[donor_id])
+    ngo = db.relationship('User', foreign_keys=[ngo_id])
 
 # Helper Functions and Routes
 @app.route('/')
@@ -95,13 +109,25 @@ def forgot_password():
 # Donor Dashboard
 @app.route('/donor_dashboard')
 def donor_dashboard():
-    donor_id = session.get('user_id')  # assumes user_id is stored in session at login
+    donor_id = session.get('user_id')
     if donor_id is None:
-        return redirect(url_for('login'))  # redirect if user not logged in
+        return redirect(url_for('login'))
 
     listings = Listing.query.filter_by(donor_id=donor_id).all()
-    return render_template('donor_dashboard.html', listings=listings)
 
+    pickup_requests = []
+    for listing in listings:
+        requests = Request.query.filter_by(listing_id=listing.id).all()
+        for req in requests:
+            ngo_user = User.query.get(req.ngo_id)
+            pickup_requests.append({'listing': listing, 'ngo': ngo_user, 'request': req})
+
+    return render_template(
+        'donor_dashboard.html',
+        listings=listings,
+        pickup_requests=pickup_requests
+    )
+    
 @app.route('/edit_listing/<int:listing_id>', methods=['GET', 'POST'])
 def edit_listing(listing_id):
     listing = Listing.query.get_or_404(listing_id)
@@ -111,7 +137,6 @@ def edit_listing(listing_id):
         listing.food_type = request.form['food_type']
         listing.quantity = request.form['quantity']
         listing.description = request.form['description']
-        listing.best_before = request.form['best_before']
         db.session.commit()
         return redirect(url_for('donor_dashboard'))
 
@@ -136,7 +161,6 @@ def update_listing(listing_id):
     listing.food_type = request.form['food_type']
     listing.quantity = request.form['quantity']
     listing.description = request.form['description']
-    listing.best_before = request.form['best_before']
     db.session.commit()
     return redirect(url_for('donor_dashboard'))
 
@@ -151,7 +175,6 @@ def add_listing():
     food_type = request.form['food_type']
     quantity = request.form['quantity']
     description = request.form['description']
-    best_before = request.form['best_before']
     # Use donor's address from user object
     address = user.address
     # Create new listing
@@ -160,12 +183,46 @@ def add_listing():
         food_type=food_type,
         quantity=quantity,
         description=description,
-        best_before=best_before,
         address=address
     )
     db.session.add(listing)
     db.session.commit()
     flash("Listing added successfully.")
+    return redirect(url_for('donor_dashboard'))
+
+@app.route('/update_request_status/<int:request_id>/<new_status>', methods=['POST'])
+def update_request_status(request_id, new_status):
+    req = Request.query.get_or_404(request_id)
+    if new_status not in ['approved', 'rejected']:
+        flash('Invalid status')
+        return redirect(url_for('donor_dashboard'))
+
+    req.status = new_status
+    db.session.commit()
+
+    listing = Listing.query.get(req.listing_id)
+    ngo_user = User.query.get(req.ngo_id)
+    donor_user = User.query.get(listing.donor_id)
+
+    # Save to History table
+    history_entry = History(
+        donor_id=donor_user.id,
+        ngo_id=ngo_user.id,
+        food_type=listing.food_type,
+        quantity=listing.quantity,
+        description=listing.description,
+        address=listing.address,
+        status=new_status
+    )
+    db.session.add(history_entry)
+    db.session.commit()
+
+    # If approved, remove listing from Listing table
+    if new_status == 'approved':
+        db.session.delete(listing)
+        db.session.commit()
+
+    flash(f'Request has been {new_status}.')
     return redirect(url_for('donor_dashboard'))
 
 # NGO Dashboard

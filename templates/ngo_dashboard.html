@@ -40,7 +40,6 @@
                     <label for="sort-donations" style="font-weight: 500; color: #5f7c6d;">Sort by:</label>
                     <select id="sort-donations" onchange="sortDonations()">
                         <option value="default">Default</option>
-                        <option value="best_before">Best Before</option>
                         <option value="urgency">Urgency (Coming Soon)</option>
                     </select>
                 </div>
@@ -52,7 +51,6 @@
                         <div class="listing-meta">
                             <span><i class="fa fa-box icon"></i> {{ listing.quantity }}</span>
                             <span><i class="fa fa-align-left icon"></i> {{ listing.description }}</span>
-                            <span><i class="fa fa-calendar icon"></i> Best before: {{ listing.best_before }}</span>
                             <span><i class="fa fa-location-arrow icon"></i> {{ listing.address }}</span>
                             <span><i class="fa fa-user icon"></i> Donor: {{ listing.donor.name if listing.donor else 'Unknown' }}</span>
                         </div>
@@ -80,7 +78,6 @@
                         <div class="listing-meta">
                             <span><i class="fa fa-box icon"></i> {{ listing.quantity }}</span>
                             <span><i class="fa fa-align-left icon"></i> {{ listing.description }}</span>
-                            <span><i class="fa fa-calendar icon"></i> Best before: {{ listing.best_before }}</span>
                             <span><i class="fa fa-location-arrow icon"></i> {{ listing.address }}</span>
                             <span><i class="fa fa-user icon"></i> Donor: {{ listing.donor.name if listing.donor else 'Unknown' }}</span>
                         </div>
