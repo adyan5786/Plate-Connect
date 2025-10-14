@@ -22,13 +22,14 @@ class User(db.Model):
 
 # Food Listing Table
 class Listing(db.Model):
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id = db.Column(db.Integer, primary_key=True)
     donor_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     food_type = db.Column(db.String(50), nullable=False)
     quantity = db.Column(db.String(50), nullable=False)
     description = db.Column(db.String(200))
     address = db.Column(db.String(200), nullable=False)
     donor = db.relationship("User", backref="listings")
+    __table_args__ = {"sqlite_autoincrement": True}
 
 
 # Requests Table
@@ -43,7 +44,7 @@ class Request(db.Model):
 class History(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     donor_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    ngo_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    ngo_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
     listing_id = db.Column(db.Integer, db.ForeignKey("listing.id"), nullable=False)
     food_type = db.Column(db.String(50), nullable=False)
     quantity = db.Column(db.String(50), nullable=False)
@@ -151,7 +152,6 @@ def donor_dashboard():
             pickup_requests.append(
                 {"listing": listing, "ngo": ngo_user, "request": req}
             )
-
 
     # fetch approved and removed history for donor
     history_items = History.query.filter(
