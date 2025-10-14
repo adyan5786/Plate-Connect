@@ -40,7 +40,7 @@
                     <label for="sort-donations" style="font-weight: 500; color: #5f7c6d;">Sort by:</label>
                     <select id="sort-donations" onchange="sortDonations()">
                         <option value="default">Default</option>
-                        <option value="urgency">Urgency (Coming Soon)</option>
+                        <option value="urgency">Distance (Coming Soon)</option>
                     </select>
                 </div>
                 {% if listings %}
@@ -59,7 +59,7 @@
                         <form method="POST" action="{{ url_for('request_listing', listing_id=listing.id) }}">
                             <button type="submit" class="btn-edit">Request Pickup</button>
                         </form>
-                        <a href="{{ url_for('listing_details', listing_id=listing.id) }}" class="btn-edit">View Details</a>
+                        <!-- Removed View Details button -->
                     </div>
                 </div>
                 {% endfor %}
@@ -84,7 +84,7 @@
                     </div>
                     <div class="listing-actions">
                         <span class="btn-edit" style="background: #e6f7e6; color: #2b824c; cursor: default;">{{ req.status|capitalize }}</span>
-                        <a href="{{ url_for('listing_details', listing_id=listing.id) }}" class="btn-edit">View Details</a>
+                        <!-- Removed View Details button -->
                     </div>
                 </div>
                 {% endfor %}

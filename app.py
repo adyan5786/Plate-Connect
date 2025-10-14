@@ -16,17 +16,16 @@ class User(db.Model):
     name = db.Column(db.String(50), nullable=False)
     user_type = db.Column(db.String(10), nullable=False)  # 'donor' or 'ngo'
     address = db.Column(db.String(200), nullable=False)
-    purpose = db.Column(db.String(200))  # For NGOs, optional
+    purpose = db.Column(db.String(200))
 
 # Food Listing Table
 class Listing(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)  
     donor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     food_type = db.Column(db.String(50), nullable=False)
     quantity = db.Column(db.String(50), nullable=False)
     description = db.Column(db.String(200))
-    address = db.Column(db.String(200), nullable=False)  # redundant for easy access
-    
+    address = db.Column(db.String(200), nullable=False)
     donor = db.relationship('User', backref='listings')
 
 # Requests Table
@@ -41,15 +40,16 @@ class History(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     donor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     ngo_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    # Listing fields duplicated below
+    listing_id = db.Column(db.Integer, db.ForeignKey('listing.id'), nullable=False) 
     food_type = db.Column(db.String(50), nullable=False)
     quantity = db.Column(db.String(50), nullable=False)
     description = db.Column(db.String(200))
     address = db.Column(db.String(200), nullable=False)
-    status = db.Column(db.String(20), nullable=False)  # 'approved' or 'rejected'
+    status = db.Column(db.String(20), nullable=False) 
 
     donor = db.relationship('User', foreign_keys=[donor_id])
     ngo = db.relationship('User', foreign_keys=[ngo_id])
+    listing = db.relationship('Listing')
 
 # Helper Functions and Routes
 @app.route('/')
@@ -114,18 +114,31 @@ def donor_dashboard():
         return redirect(url_for('login'))
 
     listings = Listing.query.filter_by(donor_id=donor_id).all()
-
     pickup_requests = []
     for listing in listings:
-        requests = Request.query.filter_by(listing_id=listing.id).all()
+        requests = Request.query.filter_by(listing_id=listing.id, status='pending').all()
         for req in requests:
             ngo_user = User.query.get(req.ngo_id)
             pickup_requests.append({'listing': listing, 'ngo': ngo_user, 'request': req})
 
+    # fetch approved history for donor
+    history_items = History.query.filter_by(donor_id=donor_id, status='approved').all()
+    request_history = []
+    for h in history_items:
+        ngo_user = User.query.get(h.ngo_id)
+        request_history.append({
+            'id': h.id,
+            'food_type': h.food_type,
+            'quantity': h.quantity,
+            'description': h.description,
+            'ngo_name': ngo_user.name if ngo_user else "Unknown"
+        })
+
     return render_template(
         'donor_dashboard.html',
         listings=listings,
-        pickup_requests=pickup_requests
+        pickup_requests=pickup_requests,
+        request_history=request_history
     )
     
 @app.route('/edit_listing/<int:listing_id>', methods=['GET', 'POST'])
@@ -200,14 +213,20 @@ def update_request_status(request_id, new_status):
     req.status = new_status
     db.session.commit()
 
+    # Fetch the listing safely
     listing = Listing.query.get(req.listing_id)
+    if not listing:
+        flash("Listing not found for this request.")
+        return redirect(url_for('donor_dashboard'))
+
     ngo_user = User.query.get(req.ngo_id)
     donor_user = User.query.get(listing.donor_id)
 
-    # Save to History table
+    # Save to History table with the listing_id
     history_entry = History(
         donor_id=donor_user.id,
         ngo_id=ngo_user.id,
+        listing_id=listing.id,  # <-- This must never be None!
         food_type=listing.food_type,
         quantity=listing.quantity,
         description=listing.description,
@@ -228,25 +247,37 @@ def update_request_status(request_id, new_status):
 # NGO Dashboard
 @app.route('/ngo_dashboard')
 def ngo_dashboard():
-    ngo_id = session.get('user_id')  # Assuming NGO is logged in and user_id in session
+    ngo_id = session.get('user_id')
+    if not ngo_id:
+        return redirect(url_for('login'))
 
-    # All available listings (not requested or status is 'available')
-    listings = Listing.query.all()  # You may want to filter based on availability
+    # 1. Get IDs of listings already approved (i.e., not available)
+    approved_listing_ids = [
+        h.listing_id for h in History.query.filter_by(status='approved').all()
+    ]
+    # 2. Get IDs of listings already requested by THIS NGO (to exclude from available)
+    requested_listing_ids = [
+        req.listing_id for req in Request.query.filter_by(ngo_id=ngo_id).all()
+    ]
 
-    # Requests made by this NGO
+    # 3. Show only listings NOT requested by this NGO and NOT already approved
+    listings = Listing.query.filter(
+        ~Listing.id.in_(requested_listing_ids + approved_listing_ids)
+    ).all()
+
+    # 4. My Requests: Only requests made by this NGO (with status)
     my_requests = (
         Request.query.filter_by(ngo_id=ngo_id)
         .join(Listing, Request.listing_id == Listing.id)
         .add_entity(Listing)
         .all()
     )
-    # my_requests will be a list of (Request, Listing) tuples
 
     return render_template(
         'ngo_dashboard.html',
         listings=listings,
         my_requests=my_requests,
-        ngo_profile_pic_url='/static/profile.jpg'  # Example, adjust as needed
+        ngo_profile_pic_url='/static/profile.jpg'
     )
 
 @app.route('/request_listing/<int:listing_id>', methods=['POST'])

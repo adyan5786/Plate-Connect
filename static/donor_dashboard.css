@@ -336,6 +336,35 @@ select:focus {
   color: #fff;
 }
 
+/* Request History styling */
+.history-card {
+  position: relative;
+}
+
+.history-accepted {
+  color: #2b824c;
+  font-weight: 600;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.history-approved-badge {
+  position: absolute;
+  top: 18px;
+  right: 32px;
+  background: #eaf6ec;       
+  color: #2b824c;            
+  border: none;               
+  border-radius: 12px;        
+  padding: 8px 22px;          
+  font-size: 1.18rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px #eaf6ec;
+  text-align: center;
+}
+
 @media (max-width: 900px) {
   .dashboard-container {
     padding: 24px 8px;

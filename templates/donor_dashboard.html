@@ -34,6 +34,7 @@
                 <button class="dashboard-tab active" onclick="showTab('listings')">My Listings</button>
                 <button class="dashboard-tab" onclick="showTab('create')">Create Listing</button>
                 <button class="dashboard-tab" onclick="showTab('requests')">Pickup Requests</button>
+                <button class="dashboard-tab" onclick="showTab('history')">Request History</button>
             </div>
 
             <!-- Listings Table -->
@@ -130,6 +131,31 @@
                 <div style="color:#5f7c6d; font-size:1.13rem;">No pickup requests yet.</div>
                 {% endif %}
             </div>
+
+            <div id="tab-history" class="listings-table" style="display:none;">
+                {% if request_history %}
+                {% for entry in request_history %}
+                <div class="listing-card pickup-request-card history-card" data-id="{{ entry.id }}">
+                    <div class="listing-details">
+                        <div class="listing-title">
+                            {{ entry.food_type }}
+                        </div>
+                        <div class="listing-meta">
+                            <span><i class="fa fa-box icon"></i> {{ entry.quantity }}</span>
+                            <span><i class="fa fa-align-left icon"></i> {{ entry.description }}</span>
+                            <span class="history-accepted"><i class="fa fa-user icon"></i> Accepted by: {{
+                                entry.ngo_name }}</span>
+                        </div>
+                    </div>
+                    <div class="listing-actions">
+                        <span class="history-approved-badge">Approved</span>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div style="color:#5f7c6d; font-size:1.13rem;">No approved request history yet.</div>
+                {% endif %}
+            </div>
         </div>
     </main>
 
@@ -152,8 +178,9 @@
             document.getElementById('tab-listings').style.display = (tab === 'listings') ? 'flex' : 'none';
             document.getElementById('tab-create').style.display = (tab === 'create') ? 'block' : 'none';
             document.getElementById('tab-requests').style.display = (tab === 'requests') ? 'block' : 'none';
+            document.getElementById('tab-history').style.display = (tab === 'history') ? 'block' : 'none';
             document.querySelectorAll('.dashboard-tab').forEach(function (el, idx) {
-                el.classList.toggle('active', ['listings', 'create', 'requests'][idx] === tab);
+                el.classList.toggle('active', ['listings', 'create', 'requests', 'history'][idx] === tab);
             });
         }
         function sortListings() {
@@ -199,4 +226,5 @@
 
     </script>
 </body>
+
 </html>
