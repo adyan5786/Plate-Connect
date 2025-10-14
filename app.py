@@ -65,11 +65,18 @@ def signup():
         address = request.form['address']
         user_type = request.form['user_type']
         purpose = request.form.get('purpose', '')
+
+        # Check if email already exists
+        existing_user = User.query.filter_by(email=email).first()
+        if existing_user:
+            flash('An account with that email already exists. Please login or use another email.', 'error')
+            return redirect(url_for('signup'))
+
         password_hash = generate_password_hash(password)
         user = User(email=email, password_hash=password_hash, name=name, address=address, user_type=user_type, purpose=purpose)
         db.session.add(user)
         db.session.commit()
-        flash('Signup successful. Please login.')
+        flash('Signup successful. Please login.', 'success')
         return redirect(url_for('login'))
     return render_template('signup.html')
 
@@ -87,7 +94,7 @@ def login():
             else:
                 return redirect(url_for('ngo_dashboard'))
         else:
-            flash('Invalid credentials')
+            flash('Invalid credentials', 'error')
     return render_template('login.html')
 
 @app.route('/forgot_password', methods=['GET', 'POST'])
@@ -100,10 +107,11 @@ def forgot_password():
         if user and new_pass == confirm_pass:
             user.password_hash = generate_password_hash(new_pass)
             db.session.commit()
-            flash('Password updated. Please login.')
+            flash('Password updated. Please login.', 'success')
             return redirect(url_for('login'))
         else:
-            flash('Email not found or passwords do not match')
+            flash('Email not found or passwords do not match', 'error')
+            return render_template('forgot_password.html')
     return render_template('forgot_password.html')
 
 # Donor Dashboard

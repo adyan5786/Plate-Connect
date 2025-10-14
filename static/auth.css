@@ -9,7 +9,7 @@
 }
 
 /* Auth Card Style */
-.container > h2 {
+.container>h2 {
     font-size: 2rem;
     color: #388e3c;
     font-weight: 700;
@@ -18,10 +18,10 @@
     letter-spacing: 0.01em;
 }
 
-.container > form {
+.container>form {
     background: #fff;
     border-radius: 16px;
-    box-shadow: 0 2px 16px rgba(27,94,32,0.06);
+    box-shadow: 0 2px 16px rgba(27, 94, 32, 0.06);
     padding: 34px 28px 24px 28px;
     max-width: 370px;
     width: 100%;
@@ -56,8 +56,10 @@
 /* Purpose field block for signup */
 #purpose-field {
     width: 100%;
-    display: none; /* JS toggles this between 'block' and 'none' */
-    margin-bottom: 0; /* match other input spacing */
+    display: none;
+    /* JS toggles this between 'block' and 'none' */
+    margin-bottom: 0;
+    /* match other input spacing */
     transition: max-height 0.15s, opacity 0.15s;
 }
 
@@ -76,7 +78,8 @@
 
 /* JS sets display:block, so ensure it doesn't overflow */
 #purpose-field[style*="display: block"] {
-    max-height: 100px; /* or whatever height is needed */
+    max-height: 100px;
+    /* or whatever height is needed */
     opacity: 1;
 }
 
@@ -90,7 +93,7 @@
     font-size: 1.09rem;
     font-weight: 500;
     cursor: pointer;
-    box-shadow: 0 2px 10px rgba(56,142,60,0.06);
+    box-shadow: 0 2px 10px rgba(56, 142, 60, 0.06);
     transition: background 0.18s, color 0.18s;
     margin-top: 8px;
 }
@@ -115,16 +118,51 @@
     text-decoration: underline;
 }
 
+/* Plate Connect styled alert for flash messages */
+.alert-message {
+    width: 100%;
+    max-width: 370px;
+    margin: 0 auto 18px auto;
+    padding: 16px 18px;
+    border-radius: 10px;
+    font-size: 1.08rem;
+    font-weight: 500;
+    text-align: center;
+    box-shadow: 0 2px 12px rgba(56, 142, 60, 0.06);
+    opacity: 1;
+    transition: opacity 0.7s ease;
+}
+
+/* Success: green */
+.alert-message.success {
+    background: #f6fef7;
+    border: 1.5px solid #c8e6c9;
+    color: #388e3c;
+}
+
+/* Error: red */
+.alert-message.error {
+    background: #fff6f6;
+    border: 1.5px solid #ffc8c8;
+    color: #c0392b;
+}
+
+.alert-message.hide {
+    opacity: 0;
+    pointer-events: none;
+}
+
 /* Responsive */
 @media (max-width: 600px) {
-    .container > form {
+    .container>form {
         padding: 16px 6px 12px 6px;
         max-width: 99vw;
     }
-    .container > h2 {
+
+    .container>h2 {
         font-size: 1.28rem;
     }
-    
+
     #purpose-field input[type="text"] {
         font-size: 0.98rem;
         padding: 10px 8px;

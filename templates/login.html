@@ -23,6 +23,17 @@
     <main>
         <!-- Login Container -->
         <div class="container">
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert-message {{ category }}" id="alert-message">
+                <span>{{ message }}</span>
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+
             <h2>Login</h2>
             <form method="POST">
                 <input type="email" name="email" placeholder="Email" required>
@@ -48,6 +59,19 @@
             </div>
         </div>
     </footer>
+
+    <script>
+        window.onload = function () {
+            var alerts = document.querySelectorAll('.alert-message');
+            if (alerts.length > 0) {
+                setTimeout(function () {
+                    alerts.forEach(function (alert) {
+                        alert.classList.add('hide');
+                    });
+                }, 3000);
+            }
+        };
+    </script>
 </body>
 
 </html>
