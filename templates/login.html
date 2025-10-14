@@ -67,6 +67,9 @@
                 setTimeout(function () {
                     alerts.forEach(function (alert) {
                         alert.classList.add('hide');
+                        setTimeout(function () {
+                            alert.style.display = 'none';
+                        }, 800); // slightly more than transition duration
                     });
                 }, 3000);
             }

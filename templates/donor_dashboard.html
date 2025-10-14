@@ -178,7 +178,7 @@
             document.getElementById('tab-listings').style.display = (tab === 'listings') ? 'flex' : 'none';
             document.getElementById('tab-create').style.display = (tab === 'create') ? 'block' : 'none';
             document.getElementById('tab-requests').style.display = (tab === 'requests') ? 'block' : 'none';
-            document.getElementById('tab-history').style.display = (tab === 'history') ? 'block' : 'none';
+            document.getElementById('tab-history').style.display = (tab === 'history') ? 'flex' : 'none';
             document.querySelectorAll('.dashboard-tab').forEach(function (el, idx) {
                 el.classList.toggle('active', ['listings', 'create', 'requests', 'history'][idx] === tab);
             });
