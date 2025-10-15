@@ -40,12 +40,6 @@
             <!-- Listings Table -->
             <div id="tab-listings" class="listings-table">
                 {% if listings %}
-                <div style="margin-bottom: 8px;">
-                    <label for="sort-listings" style="font-weight: 500; color: #5f7c6d;">Sort by:</label>
-                    <select id="sort-listings" onchange="sortListings()">
-                        <option value="default">Default</option>
-                    </select>
-                </div>
                 {% for listing in listings %}
                 <div class="listing-card" data-id="{{ listing.id }}">
                     <div class="listing-details">
@@ -111,10 +105,13 @@
                         <div class="listing-meta">
                             <span><i class="fa fa-box icon"></i> {{ entry.listing.quantity }}</span>
                             <span><i class="fa fa-align-left icon"></i> {{ entry.listing.description }}</span>
-                            <span class="pickup-requester"><i class="fa fa-user icon"></i> Requested by: {{ entry.ngo.name }}</span>
-                            <span class="pickup-requester"><i class="fa fa-location-arrow icon"></i> NGO Address: {{ entry.ngo.address }}</span>
+                            <span class="pickup-requester"><i class="fa fa-user icon"></i> Requested by: {{
+                                entry.ngo.name }}</span>
+                            <span class="pickup-requester"><i class="fa fa-location-arrow icon"></i> NGO Address: {{
+                                entry.ngo.address }}</span>
                             {% if entry.distance is not none %}
-                            <span class="pickup-requester"><i class="fa fa-route icon"></i> Distance: {{ entry.distance }} km</span>
+                            <span class="pickup-requester"><i class="fa fa-route icon"></i> Distance: {{ entry.distance
+                                }} km</span>
                             {% endif %}
                         </div>
                     </div>
@@ -148,13 +145,16 @@
                             <span><i class="fa fa-box icon"></i> {{ entry.quantity }}</span>
                             <span><i class="fa fa-align-left icon"></i> {{ entry.description }}</span>
                             {% if entry.ngo_name %}
-                            <span class="history-accepted"><i class="fa fa-user icon"></i> Accepted by: {{ entry.ngo_name }}</span>
+                            <span class="history-accepted"><i class="fa fa-user icon"></i> Accepted by: {{
+                                entry.ngo_name }}</span>
                             {% endif %}
                             {% if entry.ngo_address %}
-                            <span class="history-accepted"><i class="fa fa-location-arrow icon"></i> NGO Address: {{ entry.ngo_address }}</span>
+                            <span class="history-accepted"><i class="fa fa-location-arrow icon"></i> NGO Address: {{
+                                entry.ngo_address }}</span>
                             {% endif %}
                             {% if entry.distance is not none %}
-                            <span class="history-accepted"><i class="fa fa-route icon"></i> Distance: {{ entry.distance }} km</span>
+                            <span class="history-accepted"><i class="fa fa-route icon"></i> Distance: {{ entry.distance
+                                }} km</span>
                             {% endif %}
                         </div>
                     </div>
@@ -241,8 +241,15 @@
             btn.textContent = 'Update Listing';
         }
 
+        function getTabFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('tab');
+        }
+
         window.addEventListener('DOMContentLoaded', function () {
-            sortListings();
+            let initialTab = getTabFromUrl();
+            if (!initialTab) initialTab = 'listings'; // default
+            showTab(initialTab);
         });
     </script>
 </body>

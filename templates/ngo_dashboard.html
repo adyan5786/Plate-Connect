@@ -39,13 +39,6 @@
 
             <!-- Donations Tab -->
             <div id="tab-donations" class="listings-table">
-                <div style="margin-bottom: 8px;">
-                    <label for="sort-donations" style="font-weight: 500; color: #5f7c6d;">Sort by:</label>
-                    <select id="sort-donations" onchange="sortDonations()">
-                        <option value="default">Default</option>
-                        <option value="distance">Distance (Coming Soon)</option>
-                    </select>
-                </div>
                 {% if listings %}
                 {% for item in listings %}
                 <div class="listing-card" data-id="{{ item.listing.id }}">
@@ -157,9 +150,6 @@
             document.querySelectorAll('.dashboard-tab').forEach(function (el, idx) {
                 el.classList.toggle('active', ['donations', 'requests', 'history'][idx] === tab);
             });
-        }
-        function sortDonations() {
-            // Sorting logic placeholder
         }
         window.addEventListener('DOMContentLoaded', function () {
             showTab('donations');

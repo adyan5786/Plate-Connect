@@ -170,13 +170,32 @@ def donor_dashboard():
             ngo_user = User.query.get(req.ngo_id)
             distance = None
             if (
-                user and user.latitude and user.longitude
-                and ngo_user and ngo_user.latitude and ngo_user.longitude
+                user
+                and user.latitude
+                and user.longitude
+                and ngo_user
+                and ngo_user.latitude
+                and ngo_user.longitude
             ):
-                distance = haversine(user.latitude, user.longitude, ngo_user.latitude, ngo_user.longitude)
+                distance = haversine(
+                    user.latitude, user.longitude, ngo_user.latitude, ngo_user.longitude
+                )
             pickup_requests.append(
-                {"listing": listing, "ngo": ngo_user, "request": req, "distance": distance}
+                {
+                    "listing": listing,
+                    "ngo": ngo_user,
+                    "request": req,
+                    "distance": distance,
+                }
             )
+
+    # Sort pickup_requests by distance (shortest to longest)
+    pickup_requests.sort(
+        key=lambda x: (
+            x["distance"] is None,
+            x["distance"] if x["distance"] is not None else float("inf"),
+        )
+    )
 
     # fetch approved and removed history for donor
     history_items = History.query.filter(
@@ -187,10 +206,16 @@ def donor_dashboard():
         ngo_user = User.query.get(h.ngo_id) if h.ngo_id else None
         distance = None
         if (
-            user and user.latitude and user.longitude
-            and ngo_user and ngo_user.latitude and ngo_user.longitude
+            user
+            and user.latitude
+            and user.longitude
+            and ngo_user
+            and ngo_user.latitude
+            and ngo_user.longitude
         ):
-            distance = haversine(user.latitude, user.longitude, ngo_user.latitude, ngo_user.longitude)
+            distance = haversine(
+                user.latitude, user.longitude, ngo_user.latitude, ngo_user.longitude
+            )
         request_history.append(
             {
                 "id": h.id,
@@ -287,12 +312,12 @@ def update_request_status(request_id, new_status):
     req = Request.query.get_or_404(request_id)
     if new_status not in ["approved", "rejected"]:
         flash("Invalid status")
-        return redirect(url_for("donor_dashboard"))
+        return redirect(url_for("donor_dashboard", tab="requests"))
 
     listing = Listing.query.get(req.listing_id)
     if not listing:
         flash("Listing not found for this request.")
-        return redirect(url_for("donor_dashboard"))
+        return redirect(url_for("donor_dashboard", tab="requests"))
 
     ngo_user = User.query.get(req.ngo_id)
     donor_user = User.query.get(listing.donor_id)
@@ -316,7 +341,7 @@ def update_request_status(request_id, new_status):
         db.session.commit()
 
     flash(f"Request has been {new_status}.")
-    return redirect(url_for("donor_dashboard"))
+    return redirect(url_for("donor_dashboard", tab="requests"))
 
 
 @app.route("/ngo_dashboard")
@@ -353,6 +378,14 @@ def ngo_dashboard():
             )
         listings.append({"listing": listing, "donor": donor, "distance": distance})
 
+    # Sort listings by shortest to longest distance (None/unknown distance last)
+    listings.sort(
+        key=lambda x: (
+            x["distance"] is None,
+            x["distance"] if x["distance"] is not None else float("inf"),
+        )
+    )
+
     # My Requests
     pending_requests_query = (
         Request.query.filter_by(ngo_id=ngo_id)
@@ -376,10 +409,19 @@ def ngo_dashboard():
             )
         pending_requests.append((req, listing, donor, distance))
 
+    # Sort pending_requests by shortest to longest distance (None/unknown distance last)
+    pending_requests.sort(
+        key=lambda x: (x[3] is None, x[3] if x[3] is not None else float("inf"))
+    )
+
     # My History
-    my_history_query = History.query.filter(
-        History.ngo_id == ngo_id, History.status.in_(["approved", "rejected"])
-    ).all()
+    my_history_query = (
+        History.query.filter(
+            History.ngo_id == ngo_id, History.status.in_(["approved", "rejected"])
+        )
+        .order_by(History.id.asc())
+        .all()
+    )
     my_history = []
     for h in my_history_query:
         donor = User.query.get(h.donor_id)
