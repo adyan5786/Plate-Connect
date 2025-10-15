@@ -2,7 +2,10 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
+from dotenv import load_dotenv
 
+load_dotenv()
+GOOGLE_MAPS_API_KEY = os.environ.get("GOOGLE_MAPS_API_KEY")
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///food_platform.db"
@@ -17,6 +20,8 @@ class User(db.Model):
     name = db.Column(db.String(50), nullable=False)
     user_type = db.Column(db.String(10), nullable=False)  # 'donor' or 'ngo'
     address = db.Column(db.String(200), nullable=False)
+    latitude = db.Column(db.Float)
+    longitude = db.Column(db.Float)
     purpose = db.Column(db.String(200))
 
 
@@ -68,6 +73,8 @@ def signup():
         password = request.form["password"]
         name = request.form["name"]
         address = request.form["address"]
+        latitude = request.form.get("latitude")
+        longitude = request.form.get("longitude")
         user_type = request.form["user_type"]
         purpose = request.form.get("purpose", "")
 
@@ -87,12 +94,15 @@ def signup():
             address=address,
             user_type=user_type,
             purpose=purpose,
+            latitude=latitude,
+            longitude=longitude,
         )
         db.session.add(user)
         db.session.commit()
         flash("Signup successful. Please login.", "success")
         return redirect(url_for("login"))
-    return render_template("signup.html")
+    google_maps_api_key = os.environ.get("GOOGLE_MAPS_API_KEY")
+    return render_template("signup.html", google_maps_api_key=google_maps_api_key)
 
 
 @app.route("/login", methods=["GET", "POST"])
