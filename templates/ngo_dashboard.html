@@ -47,19 +47,23 @@
                     </select>
                 </div>
                 {% if listings %}
-                {% for listing in listings %}
-                <div class="listing-card" data-id="{{ listing.id }}">
+                {% for item in listings %}
+                <div class="listing-card" data-id="{{ item.listing.id }}">
                     <div class="listing-details">
-                        <div class="listing-title">{{ listing.food_type }}</div>
+                        <div class="listing-title">{{ item.listing.food_type }}</div>
                         <div class="listing-meta">
-                            <span><i class="fa fa-box icon"></i> {{ listing.quantity }}</span>
-                            <span><i class="fa fa-align-left icon"></i> {{ listing.description }}</span>
-                            <span><i class="fa fa-location-arrow icon"></i> {{ listing.address }}</span>
-                            <span><i class="fa fa-user icon"></i> Donor: {{ listing.donor.name if listing.donor else 'Unknown' }}</span>
+                            <span><i class="fa fa-box icon"></i> {{ item.listing.quantity }}</span>
+                            <span><i class="fa fa-align-left icon"></i> {{ item.listing.description }}</span>
+                            <span><i class="fa fa-location-arrow icon"></i> {{ item.listing.address }}</span>
+                            <span><i class="fa fa-user icon"></i> Donor: {{ item.donor.name if item.donor else 'Unknown'
+                                }}</span>
+                            {% if item.distance is not none %}
+                            <span><i class="fa fa-route icon"></i> Distance: {{ item.distance }} km</span>
+                            {% endif %}
                         </div>
                     </div>
                     <div class="listing-actions">
-                        <form method="POST" action="{{ url_for('request_listing', listing_id=listing.id) }}">
+                        <form method="POST" action="{{ url_for('request_listing', listing_id=item.listing.id) }}">
                             <button type="submit" class="btn-edit">Request Pickup</button>
                         </form>
                     </div>
@@ -72,9 +76,8 @@
 
             <!-- My Requests Tab -->
             <div id="tab-requests" class="listings-table" style="display:none;">
-                <h3>Pending Requests</h3>
                 {% if pending_requests %}
-                {% for req, listing in pending_requests %}
+                {% for req, listing, donor, distance in pending_requests %}
                 <div class="listing-card" data-id="{{ listing.id }}">
                     <div class="listing-details">
                         <div class="listing-title">{{ listing.food_type }}</div>
@@ -82,11 +85,14 @@
                             <span><i class="fa fa-box icon"></i> {{ listing.quantity }}</span>
                             <span><i class="fa fa-align-left icon"></i> {{ listing.description }}</span>
                             <span><i class="fa fa-location-arrow icon"></i> {{ listing.address }}</span>
-                            <span><i class="fa fa-user icon"></i> Donor: {{ listing.donor.name if listing.donor else 'Unknown' }}</span>
+                            <span><i class="fa fa-user icon"></i> Donor: {{ listing.donor.name if listing.donor else
+                                'Unknown' }}</span>
+                            <span><i class="fa fa-route icon"></i> Distance: {{ distance }} km</span>
                         </div>
                     </div>
                     <div class="listing-actions">
-                        <span class="btn-edit" style="background: #e6f7e6; color: #2b824c; cursor: default;">Pending</span>
+                        <span class="btn-edit"
+                            style="background: #e6f7e6; color: #2b824c; cursor: default;">Pending</span>
                     </div>
                 </div>
                 {% endfor %}
@@ -98,7 +104,7 @@
             <!-- Request History Tab -->
             <div id="tab-history" class="listings-table" style="display:none;">
                 {% if my_history %}
-                {% for h in my_history %}
+                {% for h, donor, distance in my_history %}
                 <div class="listing-card" data-id="{{ h.listing_id }}">
                     <div class="listing-details">
                         <div class="listing-title">{{ h.food_type }}</div>
@@ -106,14 +112,18 @@
                             <span><i class="fa fa-box icon"></i> {{ h.quantity }}</span>
                             <span><i class="fa fa-align-left icon"></i> {{ h.description }}</span>
                             <span><i class="fa fa-location-arrow icon"></i> {{ h.address }}</span>
-                            <span><i class="fa fa-user icon"></i> Donor: {{ h.donor.name if h.donor else 'Unknown' }}</span>
+                            <span><i class="fa fa-user icon"></i> Donor: {{ h.donor.name if h.donor else 'Unknown'
+                                }}</span>
+                            <span><i class="fa fa-route icon"></i> Distance: {{ distance }} km</span>
                         </div>
                     </div>
                     <div class="listing-actions">
                         {% if h.status == "approved" %}
-                        <span class="btn-edit" style="background: #e6f7e6; color: #2b824c; cursor: default;">Approved</span>
+                        <span class="btn-edit"
+                            style="background: #e6f7e6; color: #2b824c; cursor: default;">Approved</span>
                         {% elif h.status == "rejected" %}
-                        <span class="btn-edit" style="background: #f9e2e2; color: #c0392b; cursor: default;">Rejected</span>
+                        <span class="btn-edit"
+                            style="background: #f9e2e2; color: #c0392b; cursor: default;">Rejected</span>
                         {% endif %}
                     </div>
                 </div>
@@ -156,4 +166,5 @@
         });
     </script>
 </body>
+
 </html>

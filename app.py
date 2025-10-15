@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
 from dotenv import load_dotenv
+from math import radians, cos, sin, asin, sqrt
 
 load_dotenv()
 GOOGLE_MAPS_API_KEY = os.environ.get("GOOGLE_MAPS_API_KEY")
@@ -10,6 +11,18 @@ app = Flask(__name__)
 app.secret_key = "your_secret_key"
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///food_platform.db"
 db = SQLAlchemy(app)
+
+
+def haversine(lat1, lon1, lat2, lon2):
+    # convert decimal degrees to radians
+    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
+    # haversine formula
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+    a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
+    c = 2 * asin(sqrt(a))
+    r = 6371  # Radius of earth in kilometers
+    return round(c * r, 2)
 
 
 # User Table: Donor or NGO/Shelter
@@ -148,14 +161,21 @@ def donor_dashboard():
     if donor_id is None:
         return redirect(url_for("login"))
 
+    user = User.query.get(donor_id)
     listings = Listing.query.filter_by(donor_id=donor_id).all()
     pickup_requests = []
     for listing in listings:
         requests = Request.query.filter_by(listing_id=listing.id).all()
         for req in requests:
             ngo_user = User.query.get(req.ngo_id)
+            distance = None
+            if (
+                user and user.latitude and user.longitude
+                and ngo_user and ngo_user.latitude and ngo_user.longitude
+            ):
+                distance = haversine(user.latitude, user.longitude, ngo_user.latitude, ngo_user.longitude)
             pickup_requests.append(
-                {"listing": listing, "ngo": ngo_user, "request": req}
+                {"listing": listing, "ngo": ngo_user, "request": req, "distance": distance}
             )
 
     # fetch approved and removed history for donor
@@ -165,6 +185,12 @@ def donor_dashboard():
     request_history = []
     for h in history_items:
         ngo_user = User.query.get(h.ngo_id) if h.ngo_id else None
+        distance = None
+        if (
+            user and user.latitude and user.longitude
+            and ngo_user and ngo_user.latitude and ngo_user.longitude
+        ):
+            distance = haversine(user.latitude, user.longitude, ngo_user.latitude, ngo_user.longitude)
         request_history.append(
             {
                 "id": h.id,
@@ -172,6 +198,8 @@ def donor_dashboard():
                 "quantity": h.quantity,
                 "description": h.description,
                 "ngo_name": ngo_user.name if ngo_user else None,
+                "ngo_address": ngo_user.address if ngo_user else None,
+                "distance": distance,
                 "status": h.status,
             }
         )
@@ -297,28 +325,77 @@ def ngo_dashboard():
     if not ngo_id:
         return redirect(url_for("login"))
 
+    ngo = User.query.get(ngo_id)
     approved_listing_ids = [
         h.listing_id for h in History.query.filter_by(status="approved").all()
     ]
     requested_listing_ids = [
         req.listing_id for req in Request.query.filter_by(ngo_id=ngo_id).all()
     ]
-    listings = Listing.query.filter(
+    listings_query = Listing.query.filter(
         ~Listing.id.in_(requested_listing_ids + approved_listing_ids)
     ).all()
 
-    # Pending requests from Request table
-    pending_requests = (
+    # Available Donations - with distance
+    listings = []
+    for listing in listings_query:
+        donor = User.query.get(listing.donor_id)
+        distance = None
+        if (
+            donor
+            and donor.latitude
+            and donor.longitude
+            and ngo.latitude
+            and ngo.longitude
+        ):
+            distance = haversine(
+                ngo.latitude, ngo.longitude, donor.latitude, donor.longitude
+            )
+        listings.append({"listing": listing, "donor": donor, "distance": distance})
+
+    # My Requests
+    pending_requests_query = (
         Request.query.filter_by(ngo_id=ngo_id)
         .join(Listing, Request.listing_id == Listing.id)
         .add_entity(Listing)
         .all()
     )
+    pending_requests = []
+    for req, listing in pending_requests_query:
+        donor = User.query.get(listing.donor_id)
+        distance = None
+        if (
+            donor
+            and donor.latitude
+            and donor.longitude
+            and ngo.latitude
+            and ngo.longitude
+        ):
+            distance = haversine(
+                ngo.latitude, ngo.longitude, donor.latitude, donor.longitude
+            )
+        pending_requests.append((req, listing, donor, distance))
 
-    # Approved/rejected requests from History table
-    my_history = History.query.filter(
+    # My History
+    my_history_query = History.query.filter(
         History.ngo_id == ngo_id, History.status.in_(["approved", "rejected"])
     ).all()
+    my_history = []
+    for h in my_history_query:
+        donor = User.query.get(h.donor_id)
+        distance = None
+        if (
+            donor
+            and donor.latitude
+            and donor.longitude
+            and ngo.latitude
+            and ngo.longitude
+        ):
+            distance = haversine(
+                ngo.latitude, ngo.longitude, donor.latitude, donor.longitude
+            )
+        h.donor = donor  # for template compatibility
+        my_history.append((h, donor, distance))
 
     return render_template(
         "ngo_dashboard.html",
