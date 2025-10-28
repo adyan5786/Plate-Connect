@@ -1,18 +1,9 @@
-from flask import (
-    Flask,
-    render_template,
-    request,
-    redirect,
-    url_for,
-    session,
-    flash,
-    abort,
-)
+from flask import Flask, render_template, request, redirect, url_for, session, flash, abort
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
 from dotenv import load_dotenv
-from math import radians, cos, sin, asin, sqrt
+import requests
 
 load_dotenv()
 GOOGLE_MAPS_API_KEY = os.environ.get("GOOGLE_MAPS_API_KEY")
@@ -22,16 +13,25 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///food_platform.db"
 db = SQLAlchemy(app)
 
 
-# haversine formula to calculate distance between two lat/lon points
-def haversine(lat1, lon1, lat2, lon2):
-    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
-    dlon = lon2 - lon1
-    dlat = lat2 - lat1
-    a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
-    c = 2 * asin(sqrt(a))
-    r = 6371  # Radius of earth in kilometers
-    return round(c * r, 2)
-
+# get_route_distance formula to calculate distance between two lat/lon points
+def get_route_distance(origin_lat, origin_lon, dest_lat, dest_lon):
+    api_key = GOOGLE_MAPS_API_KEY
+    origin = f"{origin_lat},{origin_lon}"
+    destination = f"{dest_lat},{dest_lon}"
+    url = (
+        f"https://maps.googleapis.com/maps/api/directions/json"
+        f"?origin={origin}&destination={destination}&key={api_key}"
+    )
+    response = requests.get(url)
+    data = response.json()
+    if (
+        data["status"] == "OK"
+        and data["routes"]
+        and data["routes"][0]["legs"]
+    ):
+        # Distance is in meters
+        return round(data["routes"][0]["legs"][0]["distance"]["value"] / 1000, 2)
+    return None
 
 # User Table: Donor or NGO/Shelter
 class User(db.Model):
@@ -203,7 +203,7 @@ def donor_dashboard():
                 and ngo_user.latitude
                 and ngo_user.longitude
             ):
-                distance = haversine(
+                distance = get_route_distance(
                     user.latitude, user.longitude, ngo_user.latitude, ngo_user.longitude
                 )
             pickup_requests.append(
@@ -237,7 +237,7 @@ def donor_dashboard():
             and ngo_user.latitude
             and ngo_user.longitude
         ):
-            distance = haversine(
+            distance = get_route_distance(
                 user.latitude, user.longitude, ngo_user.latitude, ngo_user.longitude
             )
         request_history.append(
@@ -402,7 +402,7 @@ def ngo_dashboard():
             and ngo.latitude
             and ngo.longitude
         ):
-            distance = haversine(
+            distance = get_route_distance(
                 ngo.latitude, ngo.longitude, donor.latitude, donor.longitude
             )
         listings.append({"listing": listing, "donor": donor, "distance": distance})
@@ -431,7 +431,7 @@ def ngo_dashboard():
             and ngo.latitude
             and ngo.longitude
         ):
-            distance = haversine(
+            distance = get_route_distance(
                 ngo.latitude, ngo.longitude, donor.latitude, donor.longitude
             )
         pending_requests.append((req, listing, donor, distance))
@@ -458,7 +458,7 @@ def ngo_dashboard():
             and ngo.latitude
             and ngo.longitude
         ):
-            distance = haversine(
+            distance = get_route_distance(
                 ngo.latitude, ngo.longitude, donor.latitude, donor.longitude
             )
         h.donor = donor
