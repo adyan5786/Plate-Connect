@@ -13,9 +13,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import os
 from dotenv import load_dotenv
 import requests
-from datetime import datetime, timedelta
 
-
+# Initialize app and database
 load_dotenv()
 GOOGLE_MAPS_API_KEY = os.environ.get("GOOGLE_MAPS_API_KEY")
 app = Flask(__name__)
@@ -47,7 +46,6 @@ def get_route_distance(origin_lat, origin_lon, dest_lat, dest_lon):
     data = response.json()
     if data["status"] == "OK" and data["routes"] and data["routes"][0]["legs"]:
         distance_km = round(data["routes"][0]["legs"][0]["distance"]["value"] / 1000, 2)
-        # 3. Save to cache
         new_cache = DistanceCache(
             origin_lat=origin_lat,
             origin_lon=origin_lon,
