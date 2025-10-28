@@ -1,9 +1,20 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, abort
+from flask import (
+    Flask,
+    render_template,
+    request,
+    redirect,
+    url_for,
+    session,
+    flash,
+    abort,
+)
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
 from dotenv import load_dotenv
 import requests
+from datetime import datetime, timedelta
+
 
 load_dotenv()
 GOOGLE_MAPS_API_KEY = os.environ.get("GOOGLE_MAPS_API_KEY")
@@ -13,8 +24,18 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///food_platform.db"
 db = SQLAlchemy(app)
 
 
-# get_route_distance formula to calculate distance between two lat/lon points
+# Function to get distance using Google Maps Directions API
 def get_route_distance(origin_lat, origin_lon, dest_lat, dest_lon):
+    cache_entry = DistanceCache.query.filter_by(
+        origin_lat=origin_lat,
+        origin_lon=origin_lon,
+        dest_lat=dest_lat,
+        dest_lon=dest_lon,
+    ).first()
+
+    if cache_entry:
+        return cache_entry.distance_km
+
     api_key = GOOGLE_MAPS_API_KEY
     origin = f"{origin_lat},{origin_lon}"
     destination = f"{dest_lat},{dest_lon}"
@@ -24,14 +45,22 @@ def get_route_distance(origin_lat, origin_lon, dest_lat, dest_lon):
     )
     response = requests.get(url)
     data = response.json()
-    if (
-        data["status"] == "OK"
-        and data["routes"]
-        and data["routes"][0]["legs"]
-    ):
-        # Distance is in meters
-        return round(data["routes"][0]["legs"][0]["distance"]["value"] / 1000, 2)
+    if data["status"] == "OK" and data["routes"] and data["routes"][0]["legs"]:
+        distance_km = round(data["routes"][0]["legs"][0]["distance"]["value"] / 1000, 2)
+        # 3. Save to cache
+        new_cache = DistanceCache(
+            origin_lat=origin_lat,
+            origin_lon=origin_lon,
+            dest_lat=dest_lat,
+            dest_lon=dest_lon,
+            distance_km=distance_km,
+        )
+        db.session.add(new_cache)
+        db.session.commit()
+        return distance_km
+
     return None
+
 
 # User Table: Donor or NGO/Shelter
 class User(db.Model):
@@ -80,6 +109,16 @@ class History(db.Model):
     donor = db.relationship("User", foreign_keys=[donor_id])
     ngo = db.relationship("User", foreign_keys=[ngo_id])
     listing = db.relationship("Listing")
+
+
+# Distance Cache Table
+class DistanceCache(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    origin_lat = db.Column(db.Float, nullable=False)
+    origin_lon = db.Column(db.Float, nullable=False)
+    dest_lat = db.Column(db.Float, nullable=False)
+    dest_lon = db.Column(db.Float, nullable=False)
+    distance_km = db.Column(db.Float, nullable=False)
 
 
 # Routes and Views
