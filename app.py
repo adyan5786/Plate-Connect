@@ -1,4 +1,13 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, abort
+from flask import (
+    Flask,
+    render_template,
+    request,
+    redirect,
+    url_for,
+    session,
+    flash,
+    abort,
+)
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
@@ -98,6 +107,20 @@ def signup():
                 "An account with that email already exists. Please login or use another email.",
                 "error",
             )
+            return redirect(url_for("signup"))
+
+        if not latitude or not longitude:
+            flash(
+                "Please select a valid address from the suggestions to autofill location.",
+                "error",
+            )
+            return redirect(url_for("signup"))
+
+        try:
+            latitude = float(latitude)
+            longitude = float(longitude)
+        except ValueError:
+            flash("Invalid location data. Please select a valid address.", "error")
             return redirect(url_for("signup"))
 
         password_hash = generate_password_hash(password)
@@ -260,7 +283,7 @@ def remove_listing(listing_id):
     donor_id = session.get("user_id")
     history_entry = History(
         donor_id=donor_id,
-        ngo_id=None,  # No NGO involved
+        ngo_id=None,
         listing_id=listing.id,
         food_type=listing.food_type,
         quantity=listing.quantity,
