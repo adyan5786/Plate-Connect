@@ -13,10 +13,9 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///food_platform.db"
 db = SQLAlchemy(app)
 
 
+# haversine formula to calculate distance between two lat/lon points
 def haversine(lat1, lon1, lat2, lon2):
-    # convert decimal degrees to radians
     lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
-    # haversine formula
     dlon = lon2 - lon1
     dlat = lat2 - lat1
     a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
@@ -31,7 +30,7 @@ class User(db.Model):
     email = db.Column(db.String(100), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
     name = db.Column(db.String(50), nullable=False)
-    user_type = db.Column(db.String(10), nullable=False)  # 'donor' or 'ngo'
+    user_type = db.Column(db.String(10), nullable=False)
     address = db.Column(db.String(200), nullable=False)
     latitude = db.Column(db.Float)
     longitude = db.Column(db.Float)
@@ -50,7 +49,7 @@ class Listing(db.Model):
     __table_args__ = {"sqlite_autoincrement": True}
 
 
-# Requests Table (status column removed)
+# Requests Table
 class Request(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     listing_id = db.Column(db.Integer, db.ForeignKey("listing.id"), nullable=False)
@@ -74,11 +73,13 @@ class History(db.Model):
     listing = db.relationship("Listing")
 
 
+# Routes and Views
 @app.route("/")
 def home():
     return render_template("index.html")
 
 
+# Signup Route
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     if request.method == "POST":
@@ -118,6 +119,7 @@ def signup():
     return render_template("signup.html", google_maps_api_key=google_maps_api_key)
 
 
+# Login Route
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -136,6 +138,7 @@ def login():
     return render_template("login.html")
 
 
+# Forgot Password Route
 @app.route("/forgot_password", methods=["GET", "POST"])
 def forgot_password():
     if request.method == "POST":
@@ -189,7 +192,6 @@ def donor_dashboard():
                 }
             )
 
-    # Sort pickup_requests by distance (shortest to longest)
     pickup_requests.sort(
         key=lambda x: (
             x["distance"] is None,
@@ -197,7 +199,6 @@ def donor_dashboard():
         )
     )
 
-    # fetch approved and removed history for donor
     history_items = History.query.filter(
         History.donor_id == donor_id, History.status.in_(["approved", "removed"])
     ).all()
@@ -237,6 +238,7 @@ def donor_dashboard():
     )
 
 
+# Edit Listing Route
 @app.route("/edit_listing/<int:listing_id>", methods=["GET", "POST"])
 def edit_listing(listing_id):
     listing = Listing.query.get_or_404(listing_id)
@@ -251,6 +253,7 @@ def edit_listing(listing_id):
     return render_template("edit_listing.html", listing=listing)
 
 
+# Remove Listing Route
 @app.route("/remove_listing/<int:listing_id>", methods=["POST"])
 def remove_listing(listing_id):
     listing = Listing.query.get_or_404(listing_id)
@@ -271,6 +274,7 @@ def remove_listing(listing_id):
     return redirect(url_for("donor_dashboard"))
 
 
+# Update Listing Route
 @app.route("/update_listing/<int:listing_id>", methods=["POST"])
 def update_listing(listing_id):
     listing = Listing.query.get_or_404(listing_id)
@@ -284,6 +288,7 @@ def update_listing(listing_id):
     return redirect(url_for("donor_dashboard"))
 
 
+# Add Listing Route
 @app.route("/add_listing", methods=["POST"])
 def add_listing():
     user_id = session.get("user_id")
@@ -307,6 +312,7 @@ def add_listing():
     return redirect(url_for("donor_dashboard"))
 
 
+# Update Request Status Route
 @app.route("/update_request_status/<int:request_id>/<new_status>", methods=["POST"])
 def update_request_status(request_id, new_status):
     req = Request.query.get_or_404(request_id)
@@ -344,6 +350,7 @@ def update_request_status(request_id, new_status):
     return redirect(url_for("donor_dashboard", tab="requests"))
 
 
+# NGO Dashboard
 @app.route("/ngo_dashboard")
 def ngo_dashboard():
     ngo_id = session.get("user_id")
@@ -361,7 +368,6 @@ def ngo_dashboard():
         ~Listing.id.in_(requested_listing_ids + approved_listing_ids)
     ).all()
 
-    # Available Donations - with distance
     listings = []
     for listing in listings_query:
         donor = User.query.get(listing.donor_id)
@@ -378,7 +384,6 @@ def ngo_dashboard():
             )
         listings.append({"listing": listing, "donor": donor, "distance": distance})
 
-    # Sort listings by shortest to longest distance (None/unknown distance last)
     listings.sort(
         key=lambda x: (
             x["distance"] is None,
@@ -386,7 +391,6 @@ def ngo_dashboard():
         )
     )
 
-    # My Requests
     pending_requests_query = (
         Request.query.filter_by(ngo_id=ngo_id)
         .join(Listing, Request.listing_id == Listing.id)
@@ -409,12 +413,10 @@ def ngo_dashboard():
             )
         pending_requests.append((req, listing, donor, distance))
 
-    # Sort pending_requests by shortest to longest distance (None/unknown distance last)
     pending_requests.sort(
         key=lambda x: (x[3] is None, x[3] if x[3] is not None else float("inf"))
     )
 
-    # My History
     my_history_query = (
         History.query.filter(
             History.ngo_id == ngo_id, History.status.in_(["approved", "rejected"])
@@ -436,7 +438,7 @@ def ngo_dashboard():
             distance = haversine(
                 ngo.latitude, ngo.longitude, donor.latitude, donor.longitude
             )
-        h.donor = donor  # for template compatibility
+        h.donor = donor
         my_history.append((h, donor, distance))
 
     return render_template(
@@ -448,6 +450,7 @@ def ngo_dashboard():
     )
 
 
+# Request Listing Route
 @app.route("/request_listing/<int:listing_id>", methods=["POST"])
 def request_listing(listing_id):
     ngo_id = session.get("user_id")
@@ -463,12 +466,14 @@ def request_listing(listing_id):
     return redirect(url_for("ngo_dashboard"))
 
 
+# Listing Details Route
 @app.route("/listing/<int:listing_id>")
 def listing_details(listing_id):
     listing = Listing.query.get_or_404(listing_id)
     return render_template("listing_details.html", listing=listing)
 
 
+# Profile Route
 @app.route("/profile", methods=["GET", "POST"])
 def profile():
     user_id = session.get("user_id")
@@ -487,12 +492,14 @@ def profile():
     return render_template("profile.html", user=user)
 
 
+# Logout Route
 @app.route("/logout", methods=["POST"])
 def logout():
     session.clear()
     return redirect(url_for("login"))
 
 
+# Run the app
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()

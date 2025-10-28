@@ -23,6 +23,7 @@
             </div>
         </header>
 
+        <!-- Dashboard Container -->
         <div class="dashboard-container">
             <div class="dashboard-header">
                 <div>
@@ -174,6 +175,7 @@
         </div>
     </main>
 
+    <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <div>
@@ -189,7 +191,7 @@
     </footer>
 
     <script>
-        let isEditing = false; // Track if currently editing
+        let isEditing = false;
 
         function showTab(tab) {
             document.getElementById('tab-listings').style.display = (tab === 'listings') ? 'flex' : 'none';
@@ -200,7 +202,6 @@
                 el.classList.toggle('active', ['listings', 'create', 'requests', 'history'][idx] === tab);
             });
 
-            // If switching to create tab without editing, reset form
             if (tab === 'create' && !isEditing) {
                 resetCreateListingForm();
             } else if (tab !== 'create') {
@@ -211,32 +212,27 @@
 
         function resetCreateListingForm() {
             const form = document.querySelector('.create-listing-form');
-            form.action = "{{ url_for('add_listing') }}"; // Reset to add_listing route
+            form.action = "{{ url_for('add_listing') }}";
             const btn = form.querySelector('.create-listing-btn');
             btn.textContent = 'Create Listing';
 
-            // Clear input fields
             document.getElementById('food_type').value = '';
             document.getElementById('quantity').value = '';
             document.getElementById('description').value = '';
         }
 
         function editListing(id, foodType, quantity, description) {
-            isEditing = true; // Mark as editing
+            isEditing = true;
 
-            // Show the "Create Listing" tab
             showTab('create');
 
-            // Populate the form
             document.getElementById('food_type').value = foodType;
             document.getElementById('quantity').value = quantity;
             document.getElementById('description').value = description;
 
-            // Change the form action to update the existing listing
             const form = document.querySelector('.create-listing-form');
             form.action = "/update_listing/" + id;
 
-            // Change the button text to "Update Listing"
             const btn = form.querySelector('.create-listing-btn');
             btn.textContent = 'Update Listing';
         }
@@ -248,7 +244,7 @@
 
         window.addEventListener('DOMContentLoaded', function () {
             let initialTab = getTabFromUrl();
-            if (!initialTab) initialTab = 'listings'; // default
+            if (!initialTab) initialTab = 'listings';
             showTab(initialTab);
         });
     </script>

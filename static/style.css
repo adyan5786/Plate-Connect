@@ -6,20 +6,20 @@
     --dark-blue: #3C556E;
 }
 
-html, body {
-  height: 100%;
-  margin: 0;
+html,
+body {
+    height: 100%;
+    margin: 0;
 }
 
 body {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
-/* Your main content container */
 main {
-  flex: 1; /* Pushes the footer to the bottom */
+    flex: 1;
 }
 
 .green-font {
@@ -69,7 +69,6 @@ body {
     font-size: 1.25rem;
     font-weight: bold;
     text-decoration: none;
-    /* Prevent underline */
     cursor: pointer;
     transition: color 0.18s;
 }
@@ -150,6 +149,7 @@ body {
     background: #f57c00;
 }
 
+/* Footer */
 .footer {
     padding: 1rem 0;
     background: var(--green);

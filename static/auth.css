@@ -1,4 +1,3 @@
-/* Centered Container for Auth Pages */
 .container {
     margin-top: 30px;
     display: flex;
@@ -57,9 +56,7 @@
 #purpose-field {
     width: 100%;
     display: none;
-    /* JS toggles this between 'block' and 'none' */
     margin-bottom: 0;
-    /* match other input spacing */
     transition: max-height 0.15s, opacity 0.15s;
 }
 
@@ -76,10 +73,8 @@
     transition: border-color 0.15s, background 0.15s;
 }
 
-/* JS sets display:block, so ensure it doesn't overflow */
 #purpose-field[style*="display: block"] {
     max-height: 100px;
-    /* or whatever height is needed */
     opacity: 1;
 }
 
@@ -133,14 +128,12 @@
     transition: opacity 0.7s ease;
 }
 
-/* Success: green */
 .alert-message.success {
     background: #f6fef7;
     border: 1.5px solid #c8e6c9;
     color: #388e3c;
 }
 
-/* Error: red */
 .alert-message.error {
     background: #fff6f6;
     border: 1.5px solid #ffc8c8;

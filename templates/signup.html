@@ -7,13 +7,13 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='auth.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css"
         crossorigin="anonymous" referrerpolicy="no-referrer" />
-    
+
     <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&libraries=places"></script>
 </head>
 
 <body>
     <main>
-        
+
         <!-- Header -->
         <header class="header">
             <div class="logo">
@@ -22,10 +22,10 @@
                 <a href="/" class="logo-text dark-blue-font">Connect</a>
             </div>
         </header>
-        
+
         <!-- Signup Container -->
         <div class="container">
-       
+
             {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
             {% for category, message in messages %}
@@ -38,13 +38,11 @@
 
             <h2>Sign Up</h2>
             <form method="POST">
-                <input type="email" name="email" placeholder="Email" required>
-                <input type="password" name="password" placeholder="Password" required>
+                <input type="email" name="email" placeholder="Email" required autocomplete="off">
+                <input type="password" name="password" placeholder="Password" required autocomplete="off">
                 <input type="text" name="name" placeholder="Name" required>
-                <!-- Address Autocomplete Input -->
                 <input type="text" name="address" id="address" placeholder="Enter your address" required
                     autocomplete="off">
-                <!-- Hidden fields for latitude/longitude -->
                 <input type="hidden" name="latitude" id="latitude">
                 <input type="hidden" name="longitude" id="longitude">
                 <select name="user_type" id="user_type" required>
@@ -59,7 +57,7 @@
             <a href="{{ url_for('login') }}">Already have an account? Login</a>
         </div>
     </main>
-    
+
     <footer class="footer">
         <div class="container">
             <div>
@@ -73,7 +71,7 @@
             </div>
         </div>
     </footer>
-    
+
     <script>
         // Google Places Autocomplete for Address
         function initAutocomplete() {
