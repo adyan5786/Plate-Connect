@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, abort
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
@@ -446,7 +446,6 @@ def ngo_dashboard():
         listings=listings,
         pending_requests=pending_requests,
         my_history=my_history,
-        ngo_profile_pic_url="/static/profile.jpg",
     )
 
 
@@ -471,25 +470,6 @@ def request_listing(listing_id):
 def listing_details(listing_id):
     listing = Listing.query.get_or_404(listing_id)
     return render_template("listing_details.html", listing=listing)
-
-
-# Profile Route
-@app.route("/profile", methods=["GET", "POST"])
-def profile():
-    user_id = session.get("user_id")
-    user = User.query.get(user_id)
-    if request.method == "POST":
-        user.name = request.form["name"]
-        user.address = request.form["address"]
-        if user.user_type == "ngo":
-            user.purpose = request.form["purpose"]
-        new_password = request.form["new_password"]
-        confirm_password = request.form["confirm_password"]
-        if new_password and new_password == confirm_password:
-            user.password_hash = generate_password_hash(new_password)
-        db.session.commit()
-        flash("Profile updated.")
-    return render_template("profile.html", user=user)
 
 
 # Logout Route
