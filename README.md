@@ -4,7 +4,7 @@
 > <br><br>
 > Plate-Connect is a multi-page web application designed to facilitate location-based interactions using the Google Maps API. Developed with Vanilla JavaScript, HTML, and CSS, the platform offers users an intuitive interface for exploring and connecting with various locations. Python powers backend functionalities, ensuring robust data handling and seamless integration. The project emphasizes responsive design and dynamic mapping features to enhance user engagement. Plate-Connect serves as a practical demonstration of integrating mapping technology into modern web experiences.
 > <br><br>
-> Uses two API's of Google Maps: Directions API and Place API
+> Uses two API's of Google Maps: Directions API and Places API
 
 ## Screenshots
 ![Home Page](Resources/Screenshots%20and%20Demo%20Video/Home%20Page.png)
@@ -37,7 +37,7 @@
 Please follow the below steps to run this project.
 1. Create your virtual environment (env) (not required) and run this in the terminal:
 ```bash
- pip install -r requirements.txt
+pip install -r requirements.txt
 ```
 
 2. Create a .env file, place it within the main directory and add your Google Maps API Key like:
