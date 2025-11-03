@@ -35,10 +35,17 @@
 
 ## Deployment Steps
 Please follow the below steps to run this project.
-1. Create your virtual environment (env) (not required) and run this on the terminal:
-``` pip install -r requirements.txt ```
-2. Create a .env file, place it within the main directory and add your Google Maps API Key like: GOOGLE_MAPS_API_KEY=(your API key)
-3. Run app.py and 'ctrl + click' on http://127.0.0.1:5000 
+1. Create your virtual environment (env) (not required) and run this in the terminal:
+```bash
+ pip install -r requirements.txt
+```
+
+2. Create a .env file, place it within the main directory and add your Google Maps API Key like:
+```bash
+GOOGLE_MAPS_API_KEY=(your API key)
+```
+
+3. Run the server (app.py) and 'ctrl + click' on http://127.0.0.1:5000 
 
 ## Subject Details
 - Class : TE (COMP) Div A - 2025-2026
