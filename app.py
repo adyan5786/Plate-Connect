@@ -14,10 +14,15 @@ import os
 from dotenv import load_dotenv
 import requests
 
+# Ensure the instance folder exists in the same directory as app.py
+base_dir = os.path.dirname(os.path.abspath(__file__))
+instance_path = os.path.join(base_dir, "instance")
+os.makedirs(instance_path, exist_ok=True)
+
 # Initialize app and database
 load_dotenv()
 GOOGLE_MAPS_API_KEY = os.environ.get("GOOGLE_MAPS_API_KEY")
-app = Flask(__name__)
+app = Flask(__name__, instance_path=instance_path)
 app.secret_key = "your_secret_key"
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///food_platform.db"
 db = SQLAlchemy(app)
